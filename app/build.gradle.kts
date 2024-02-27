@@ -65,6 +65,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.7.7")
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.6.2")
 
     implementation("com.jakewharton.timber:timber:5.0.1")
 

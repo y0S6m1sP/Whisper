@@ -14,7 +14,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.googlefonts.Font
+import androidx.compose.ui.text.googlefonts.GoogleFont
 import androidx.core.view.WindowCompat
+import com.rocky.whisper.R
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -36,6 +40,18 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Color(0xFF1C1B1F),
     onSurface = Color(0xFF1C1B1F),
     */
+)
+
+val provider = GoogleFont.Provider(
+    providerAuthority = "com.google.android.gms.fonts",
+    providerPackage = "com.google.android.gms",
+    certificates = R.array.com_google_android_gms_fonts_certs
+)
+
+val fontName = GoogleFont("Source Code Pro")
+
+val fontFamily = FontFamily(
+    Font(googleFont = fontName, fontProvider = provider)
 )
 
 @Composable
