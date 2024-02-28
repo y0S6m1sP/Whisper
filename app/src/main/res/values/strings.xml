@@ -4,5 +4,6 @@
     <string name="setting">setting</string>
     <string name="whisper">Whisper</string>
     <string name="join">Join</string>
-    <string name="unread_whisper">unread whisper</string>
+    <string name="unread_message">unread message</string>
+    <string name="recent_chats">Recent Chats</string>
 </resources>
