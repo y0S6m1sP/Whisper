@@ -13,11 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,8 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.rocky.whisper.R
 import com.rocky.whisper.WhisperNavigationActions
 import com.rocky.whisper.ui.theme.IconStyle
 
@@ -82,8 +79,8 @@ fun BottomAppBar(
             Alignment.Center
         ) {
             WhisperIconButton(
-                imageVector = Icons.Outlined.Home,
-                selectedImageVector = Icons.Filled.Home,
+                painter = painterResource(id = R.drawable.ic_outlined_home),
+                selectedPainter = painterResource(id = R.drawable.ic_filled_home),
                 contentDescription = "home",
                 isSelect = selectedTab == BottomAppBarTab.Home
             )
@@ -95,8 +92,8 @@ fun BottomAppBar(
             Alignment.Center
         ) {
             WhisperIconButton(
-                imageVector = Icons.Outlined.Settings,
-                selectedImageVector = Icons.Filled.Settings,
+                painter = painterResource(id = R.drawable.ic_outlined_setting),
+                selectedPainter = painterResource(id = R.drawable.ic_filled_setting),
                 contentDescription = "setting",
                 isSelect = selectedTab == BottomAppBarTab.Setting
             )
@@ -106,8 +103,8 @@ fun BottomAppBar(
 
 @Composable
 fun WhisperIconButton(
-    imageVector: ImageVector,
-    selectedImageVector: ImageVector,
+    painter: Painter,
+    selectedPainter: Painter,
     contentDescription: String?,
     isSelect: Boolean,
     modifier: Modifier = Modifier
@@ -120,7 +117,7 @@ fun WhisperIconButton(
         Alignment.CenterHorizontally
     ) {
         Icon(
-            imageVector = if (isSelect) selectedImageVector else imageVector,
+            painter = if (isSelect) selectedPainter else painter,
             contentDescription = contentDescription,
             tint = if (isSelect) MaterialTheme.colorScheme.primary else Color.Black
         )

@@ -2,4 +2,7 @@
     <string name="app_name">Whisper</string>
     <string name="home">home</string>
     <string name="setting">setting</string>
+    <string name="whisper">Whisper</string>
+    <string name="join">Join</string>
+    <string name="unread_whisper">unread whisper</string>
 </resources>

@@ -42,18 +42,6 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
-val provider = GoogleFont.Provider(
-    providerAuthority = "com.google.android.gms.fonts",
-    providerPackage = "com.google.android.gms",
-    certificates = R.array.com_google_android_gms_fonts_certs
-)
-
-val fontName = GoogleFont("Source Code Pro")
-
-val fontFamily = FontFamily(
-    Font(googleFont = fontName, fontProvider = provider)
-)
-
 @Composable
 fun WhisperTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
