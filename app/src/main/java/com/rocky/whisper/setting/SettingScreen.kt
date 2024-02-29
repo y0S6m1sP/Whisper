@@ -11,7 +11,7 @@ import com.rocky.whisper.util.WhisperTopAppBar
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
-    viewModel: SettingViewModel = viewModel()
+    viewModel: SettingViewModel
 ) {
     SettingContent()
 }

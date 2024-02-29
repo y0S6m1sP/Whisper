@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "77814346973",
+    "project_id": "whisper-5df71",
+    "storage_bucket": "whisper-5df71.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:77814346973:android:09a765a1eff1995ca69734",
+        "android_client_info": {
+          "package_name": "com.rocky.whisper"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXl0HoJcmQUP7mf4o9ZjW-Khzu7rs18-s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

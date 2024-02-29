@@ -5,12 +5,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rocky.whisper.home.HomeScreen
+import com.rocky.whisper.home.HomeViewModel
 import com.rocky.whisper.setting.SettingScreen
+import com.rocky.whisper.setting.SettingViewModel
 import com.rocky.whisper.util.BottomAppBarTab
 import com.rocky.whisper.util.WhisperBottomAppBar
 
@@ -27,16 +30,22 @@ fun WhisperNavGraph(
         startDestination = WhisperScreens.HOME,
         modifier = modifier,
         enterTransition = { fadeIn() },
-        exitTransition = { fadeOut()  },
+        exitTransition = { fadeOut() },
         popEnterTransition = { fadeIn() },
         popExitTransition = { fadeOut() },
+        route = "main"
     ) {
-        composable(WhisperScreens.HOME) {
+        composable(WhisperScreens.HOME) { backStackEntry ->
+            val parentEntry = remember(backStackEntry) {
+                navController.getBackStackEntry("main")
+            }
+            val whisperViewModel = hiltViewModel<WhisperViewModel>(parentEntry)
+            val viewModel = hiltViewModel<HomeViewModel>()
             WhisperBottomAppBar(
                 navigationActions = navActions,
                 selectedTab = BottomAppBarTab.Home
             ) {
-                HomeScreen()
+                HomeScreen(whisperViewModel = whisperViewModel, viewModel = viewModel)
             }
         }
         composable(WhisperScreens.SETTING) {
@@ -44,7 +53,8 @@ fun WhisperNavGraph(
                 navigationActions = navActions,
                 selectedTab = BottomAppBarTab.Setting
             ) {
-                SettingScreen()
+                val viewModel = hiltViewModel<SettingViewModel>()
+                SettingScreen(viewModel = viewModel)
             }
         }
     }
