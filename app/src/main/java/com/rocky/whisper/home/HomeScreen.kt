@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -27,26 +29,41 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.firebase.auth.FirebaseUser
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
-import com.rocky.whisper.WhisperViewModel
 import com.rocky.whisper.util.Avatar
+import com.rocky.whisper.util.WhisperDialog
 import com.rocky.whisper.util.WhisperTopAppBar
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    whisperViewModel: WhisperViewModel,
     viewModel: HomeViewModel
 ) {
-    LaunchedEffect(true) {
-        whisperViewModel.signInAnonymously()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchRoom()
     }
-    HomeContent(user = whisperViewModel.userState.value)
+
+    HomeContent(
+        onWhisper = { viewModel.showWhisperDialog() },
+        recentChatList = uiState.recentChatList,
+        onWhisperDialogDismiss = { viewModel.hideWhisperDialog() },
+        onWhisperDialogSubmit = { viewModel.createRoom(it) },
+        isShowWhisperDialog = uiState.isShowWhisperDialog
+    )
 }
 
 @Composable
-fun HomeContent(modifier: Modifier = Modifier, user: FirebaseUser?) {
+fun HomeContent(
+    modifier: Modifier = Modifier,
+    recentChatList: List<String>,
+    onWhisper: () -> Unit,
+    onWhisperDialogDismiss: () -> Unit,
+    onWhisperDialogSubmit: (id: String) -> Unit,
+    isShowWhisperDialog: Boolean
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -60,7 +77,7 @@ fun HomeContent(modifier: Modifier = Modifier, user: FirebaseUser?) {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     UnReadWhisper()
                     Spacer(modifier = Modifier.weight(1f))
-                    ElevatedButton(onClick = { /*TODO*/ }) {
+                    ElevatedButton(onClick = { onWhisper() }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_whisper),
@@ -78,11 +95,15 @@ fun HomeContent(modifier: Modifier = Modifier, user: FirebaseUser?) {
                     fontWeight = FontWeight.Bold
                 )
             }
-            items(10) {
+            items(recentChatList) {
                 WhisperItem()
             }
         }
     }
+    WhisperDialog(
+        showDialog = isShowWhisperDialog,
+        onDismiss = { onWhisperDialogDismiss() },
+        onSubmit = { onWhisperDialogSubmit(it) })
 }
 
 @Composable
@@ -108,25 +129,25 @@ fun WhisperItem(modifier: Modifier = Modifier) {
             .height(64.dp)
     ) {
         Avatar(size = 64.dp)
-        Spacer(modifier = Modifier.width(4.dp))
+        Spacer(modifier = Modifier.width(8.dp))
         Column(
             Modifier
                 .fillMaxHeight()
-                .padding(top = 8.dp, bottom = 12.dp)
+                .padding(bottom = 8.dp)
         ) {
             Text(text = "name")
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "last message...",
                 fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.secondary
+                color = MaterialTheme.colorScheme.secondary,
             )
         }
         Spacer(modifier = Modifier.weight(1f))
         Box(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(bottom = 12.dp), Alignment.BottomEnd
+                .padding(bottom = 8.dp), Alignment.BottomEnd
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_check_circle),

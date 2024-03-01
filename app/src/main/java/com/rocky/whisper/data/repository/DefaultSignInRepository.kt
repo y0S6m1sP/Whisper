@@ -1,4 +1,4 @@
-package com.rocky.whisper.data
+package com.rocky.whisper.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -9,7 +9,7 @@ import javax.inject.Inject
 class DefaultSignInRepository @Inject constructor(
     private val auth: FirebaseAuth
 ) : SignInRepository {
-    override suspend fun signInAnonymously(): FirebaseUser? {
+    override suspend fun getOrSignInAnonymously(): FirebaseUser? {
         auth.currentUser?.let {
             return it
         }
