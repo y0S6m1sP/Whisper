@@ -4,9 +4,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.rocky.whisper.R
-import com.rocky.whisper.util.WhisperTopAppBar
+import com.rocky.whisper.util.LogoTopAppBar
 
 @Composable
 fun SettingScreen(
@@ -21,6 +20,6 @@ fun SettingContent(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
-        WhisperTopAppBar(R.string.setting, false)
+        LogoTopAppBar(R.string.setting, false)
     }
 }

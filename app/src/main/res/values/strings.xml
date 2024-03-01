@@ -9,4 +9,5 @@
     <string name="enter_whisper_id">Enter Whisper ID</string>
     <string name="enter_whisper_id_desc">Enter another person\'s Whisper ID to begin Whispering.</string>
     <string name="submit">Submit</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Et leo duis ut diam quam nulla porttitor massa id.</string>
 </resources>
