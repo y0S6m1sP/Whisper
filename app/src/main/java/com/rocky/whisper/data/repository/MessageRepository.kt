@@ -9,7 +9,7 @@ interface MessageRepository {
 
     suspend fun fetchRoom(): Flow<List<String>>
 
-    suspend fun sendMessage(roomId: String, message: Message)
+    suspend fun sendMessage(roomId: String, message: String)
 
-    suspend fun readMessage()
+    suspend fun fetchMessage(roomId: String): Flow<List<Message>>
 }

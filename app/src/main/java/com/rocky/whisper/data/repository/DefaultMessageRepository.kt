@@ -4,6 +4,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.rocky.whisper.data.Message
 import com.rocky.whisper.data.Room
 import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
@@ -16,6 +17,7 @@ class DefaultMessageRepository @Inject constructor(
 ) : MessageRepository {
     companion object {
         const val COLLECTION_ROOMS = "rooms"
+        const val COLLECTION_MESSAGES = "messages"
         const val FIELD_PARTICIPANTS = "participants"
     }
 
@@ -25,10 +27,11 @@ class DefaultMessageRepository @Inject constructor(
             val participants = mutableListOf<String>()
             user?.uid?.let { participants.add(it) }
             participants.add(id)
-            db.collection(COLLECTION_ROOMS).add(Room(participants, System.currentTimeMillis()))
+            db.collection(COLLECTION_ROOMS)
+                .add(Room(participants, System.currentTimeMillis()))
                 .await()
         } catch (e: Exception) {
-            Timber.w("createRoom:failure")
+            Timber.e(e)
         }
     }
 
@@ -37,7 +40,12 @@ class DefaultMessageRepository @Inject constructor(
             val user = signInRepository.getOrSignInAnonymously()
             val listener = db.collection(COLLECTION_ROOMS)
                 .whereArrayContains(FIELD_PARTICIPANTS, user?.uid ?: "")
-                .addSnapshotListener { snapshot, _ ->
+                .addSnapshotListener { snapshot, error ->
+                    error?.let {
+                        Timber.e(error)
+                        return@addSnapshotListener
+                    }
+
                     val roomIds = mutableListOf<String>()
                     if (snapshot != null) {
                         for (document in snapshot) {
@@ -52,11 +60,39 @@ class DefaultMessageRepository @Inject constructor(
         }
     }
 
-    override suspend fun sendMessage(roomId: String, message: Message) {
-
+    override suspend fun sendMessage(roomId: String, message: String) {
+        try {
+            val user = signInRepository.getOrSignInAnonymously()
+            user?.uid?.let {
+                db.collection(COLLECTION_ROOMS)
+                    .document(roomId)
+                    .collection(COLLECTION_MESSAGES)
+                    .add(Message(it, message, System.currentTimeMillis())).await()
+            }
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
     }
 
-    override suspend fun readMessage() {
+    override suspend fun fetchMessage(roomId: String): Flow<List<Message>> {
+        return callbackFlow {
+            delay(300)
+            val listener = db.collection(COLLECTION_ROOMS)
+                .document(roomId)
+                .collection(COLLECTION_MESSAGES)
+                .addSnapshotListener { snapshot, error ->
+                    error?.let {
+                        Timber.e(error)
+                        return@addSnapshotListener
+                    }
 
+                    snapshot?.let {
+                        trySend(it.toObjects(Message::class.java))
+                    }
+                }
+            awaitClose {
+                listener.remove()
+            }
+        }
     }
 }
