@@ -35,17 +35,13 @@ fun WhisperNavGraph(
         popExitTransition = { fadeOut() },
         route = "main"
     ) {
-        composable(WhisperScreens.HOME) { backStackEntry ->
-            val parentEntry = remember(backStackEntry) {
-                navController.getBackStackEntry("main")
-            }
-            val whisperViewModel = hiltViewModel<WhisperViewModel>(parentEntry)
+        composable(WhisperScreens.HOME) {
             val viewModel = hiltViewModel<HomeViewModel>()
             WhisperBottomAppBar(
                 navigationActions = navActions,
                 selectedTab = BottomAppBarTab.Home
             ) {
-                HomeScreen(whisperViewModel = whisperViewModel, viewModel = viewModel)
+                HomeScreen(viewModel = viewModel)
             }
         }
         composable(WhisperScreens.SETTING) {
