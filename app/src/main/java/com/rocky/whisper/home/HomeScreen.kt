@@ -1,5 +1,6 @@
 package com.rocky.whisper.home
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,13 +33,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
 import com.rocky.whisper.util.Avatar
+import com.rocky.whisper.util.LogoTopAppBar
 import com.rocky.whisper.util.WhisperDialog
-import com.rocky.whisper.util.WhisperTopAppBar
 
 @Composable
 fun HomeScreen(
-    modifier: Modifier = Modifier,
-    viewModel: HomeViewModel
+    onItemClick: (String) -> Unit,
+    viewModel: HomeViewModel,
+    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -49,6 +51,7 @@ fun HomeScreen(
     HomeContent(
         onWhisper = { viewModel.showWhisperDialog() },
         recentChatList = uiState.recentChatList,
+        onItemClick = onItemClick,
         onWhisperDialogDismiss = { viewModel.hideWhisperDialog() },
         onWhisperDialogSubmit = { viewModel.createRoom(it) },
         isShowWhisperDialog = uiState.isShowWhisperDialog
@@ -59,6 +62,7 @@ fun HomeScreen(
 fun HomeContent(
     modifier: Modifier = Modifier,
     recentChatList: List<String>,
+    onItemClick: (String) -> Unit,
     onWhisper: () -> Unit,
     onWhisperDialogDismiss: () -> Unit,
     onWhisperDialogSubmit: (id: String) -> Unit,
@@ -69,7 +73,7 @@ fun HomeContent(
             .fillMaxSize()
             .padding(start = 24.dp, end = 24.dp)
     ) {
-        WhisperTopAppBar(R.string.home, true)
+        LogoTopAppBar(R.string.home, true)
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
@@ -96,7 +100,9 @@ fun HomeContent(
                 )
             }
             items(recentChatList) {
-                WhisperItem()
+                WhisperItem(onItemClick = {
+                    onItemClick(it)
+                })
             }
         }
     }
@@ -121,12 +127,14 @@ fun UnReadWhisper(modifier: Modifier = Modifier) {
 }
 
 @Composable
-@Preview(showBackground = true)
-fun WhisperItem(modifier: Modifier = Modifier) {
+fun WhisperItem(onItemClick: () -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier
             .fillMaxWidth()
             .height(64.dp)
+            .clickable {
+                onItemClick()
+            }
     ) {
         Avatar(size = 64.dp)
         Spacer(modifier = Modifier.width(8.dp))

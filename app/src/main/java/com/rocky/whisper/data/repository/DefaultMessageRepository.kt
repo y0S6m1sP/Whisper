@@ -34,19 +34,21 @@ class DefaultMessageRepository @Inject constructor(
 
     override suspend fun fetchRoom(): Flow<List<String>> {
         return callbackFlow {
-            try {
-                val user = signInRepository.getOrSignInAnonymously()
-                val snapshot = db.collection(COLLECTION_ROOMS)
-                    .whereArrayContains(FIELD_PARTICIPANTS, user?.uid ?: "").get().await()
-                val roomIds = mutableListOf<String>()
-                for (document in snapshot) {
-                    roomIds.add(document.id)
+            val user = signInRepository.getOrSignInAnonymously()
+            val listener = db.collection(COLLECTION_ROOMS)
+                .whereArrayContains(FIELD_PARTICIPANTS, user?.uid ?: "")
+                .addSnapshotListener { snapshot, _ ->
+                    val roomIds = mutableListOf<String>()
+                    if (snapshot != null) {
+                        for (document in snapshot) {
+                            roomIds.add(document.id)
+                        }
+                    }
+                    trySend(roomIds)
                 }
-                trySend(roomIds)
-            } catch (e: Exception) {
-                Timber.w("fetchRoom:failure")
+            awaitClose {
+                listener.remove()
             }
-            awaitClose { /* nothing */ }
         }
     }
 

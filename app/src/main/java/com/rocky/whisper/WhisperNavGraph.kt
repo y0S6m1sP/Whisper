@@ -1,5 +1,6 @@
 package com.rocky.whisper
 
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
@@ -10,6 +11,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.rocky.whisper.WhisperDestinations.CHAT_ROUTE
+import com.rocky.whisper.WhisperDestinations.HOME_ROUTE
+import com.rocky.whisper.WhisperDestinations.SETTING_ROUTE
+import com.rocky.whisper.chat.ChatScreen
+import com.rocky.whisper.chat.ChatViewModel
 import com.rocky.whisper.home.HomeScreen
 import com.rocky.whisper.home.HomeViewModel
 import com.rocky.whisper.setting.SettingScreen
@@ -27,7 +33,7 @@ fun WhisperNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = WhisperScreens.HOME,
+        startDestination = HOME_ROUTE,
         modifier = modifier,
         enterTransition = { fadeIn() },
         exitTransition = { fadeOut() },
@@ -35,16 +41,21 @@ fun WhisperNavGraph(
         popExitTransition = { fadeOut() },
         route = "main"
     ) {
-        composable(WhisperScreens.HOME) {
+        composable(HOME_ROUTE) {
             val viewModel = hiltViewModel<HomeViewModel>()
             WhisperBottomAppBar(
                 navigationActions = navActions,
                 selectedTab = BottomAppBarTab.Home
             ) {
-                HomeScreen(viewModel = viewModel)
+                HomeScreen(
+                    onItemClick = {
+                        navActions.navigateToChat(it)
+                    },
+                    viewModel = viewModel
+                )
             }
         }
-        composable(WhisperScreens.SETTING) {
+        composable(SETTING_ROUTE) {
             WhisperBottomAppBar(
                 navigationActions = navActions,
                 selectedTab = BottomAppBarTab.Setting
@@ -52,6 +63,22 @@ fun WhisperNavGraph(
                 val viewModel = hiltViewModel<SettingViewModel>()
                 SettingScreen(viewModel = viewModel)
             }
+        }
+        composable(
+            CHAT_ROUTE,
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
+            exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
+            popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
+            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
+        ) {
+            val viewModel = hiltViewModel<ChatViewModel>()
+            ChatScreen(
+                topAppBarTitle = viewModel.roomId,
+                onBackPressed = {
+                    navController.popBackStack()
+                },
+                viewModel
+            )
         }
     }
 }
