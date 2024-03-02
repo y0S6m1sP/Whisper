@@ -5,9 +5,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Face
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -28,11 +27,12 @@ fun LogoTopAppBar(@StringRes titleRes: Int, isAvatar: Boolean, modifier: Modifie
             .height(64.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(Icons.Filled.Face, contentDescription = null)
+        Icon(painter = painterResource(id = R.drawable.ic_logo), contentDescription = null)
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = stringResource(id = titleRes),
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 4.dp)
         )
         if (isAvatar) {
             Spacer(modifier = Modifier.weight(1f))
