@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,9 +44,10 @@ fun LogoTopAppBar(@StringRes titleRes: Int, isAvatar: Boolean, modifier: Modifie
 
 @Composable
 fun DefaultTopAppBar(
-    title: String,
+    modifier: Modifier = Modifier,
+    title: String? = null,
     onBackPressed: () -> Unit,
-    modifier: Modifier = Modifier
+    tint: Color = Color.Black
 ) {
     Row(
         modifier
@@ -56,13 +58,17 @@ fun DefaultTopAppBar(
         IconButton(onClick = { onBackPressed() }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_arrow_back),
-                contentDescription = "back"
+                contentDescription = "back",
+                tint = tint
             )
         }
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = title,
-            fontWeight = FontWeight.Bold
-        )
+        title?.let {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(
+                text = title,
+                fontWeight = FontWeight.Bold,
+                color = tint
+            )
+        }
     }
 }
