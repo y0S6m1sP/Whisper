@@ -5,9 +5,13 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.ktx.storage
 import com.rocky.whisper.data.repository.DefaultMessageRepository
+import com.rocky.whisper.data.repository.DefaultProfileRepository
 import com.rocky.whisper.data.repository.DefaultSignInRepository
 import com.rocky.whisper.data.repository.MessageRepository
+import com.rocky.whisper.data.repository.ProfileRepository
 import com.rocky.whisper.data.repository.SignInRepository
 import dagger.Binds
 import dagger.Module
@@ -27,6 +31,10 @@ abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindMessageRepository(repository: DefaultMessageRepository): MessageRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindProfileRepository(repository: DefaultProfileRepository): ProfileRepository
 }
 
 
@@ -44,5 +52,11 @@ object FirebaseModule {
     @Provides
     fun provideFirebaseFirestore(): FirebaseFirestore {
         return Firebase.firestore
+    }
+
+    @Singleton
+    @Provides
+    fun provideFirebaseStorage(): FirebaseStorage {
+        return Firebase.storage
     }
 }

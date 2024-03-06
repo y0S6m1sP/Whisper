@@ -16,4 +16,5 @@
     <string name="report_problem">Report Problem</string>
     <string name="help">Help</string>
     <string name="delete_account">Delete Account</string>
+    <string name="upload">Upload</string>
 </resources>

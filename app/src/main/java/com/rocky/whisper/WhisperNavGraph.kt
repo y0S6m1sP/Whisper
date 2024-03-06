@@ -11,15 +11,20 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.rocky.whisper.WhisperDestinations.CHAT_ROUTE
 import com.rocky.whisper.WhisperDestinations.HOME_ROUTE
 import com.rocky.whisper.WhisperDestinations.SETTING_ROUTE
+import com.rocky.whisper.WhisperDestinations.UPLOAD_IMAGE_ROUTE
+import com.rocky.whisper.WhisperDestinationsArgs.IMAGE_URI_ARG
 import com.rocky.whisper.chat.ChatScreen
 import com.rocky.whisper.chat.ChatViewModel
 import com.rocky.whisper.home.HomeScreen
 import com.rocky.whisper.home.HomeViewModel
 import com.rocky.whisper.setting.SettingScreen
 import com.rocky.whisper.setting.SettingViewModel
+import com.rocky.whisper.uploadimage.UploadImageScreen
+import com.rocky.whisper.uploadimage.UploadImageViewModel
 import com.rocky.whisper.util.BottomAppBarTab
 import com.rocky.whisper.util.WhisperBottomAppBar
 
@@ -61,7 +66,12 @@ fun WhisperNavGraph(
                 selectedTab = BottomAppBarTab.Setting
             ) {
                 val viewModel = hiltViewModel<SettingViewModel>()
-                SettingScreen(viewModel = viewModel)
+                SettingScreen(
+                    viewModel = viewModel,
+                    onImageSelect = { uri ->
+                        navActions.navigateToUploadImage(uri.toString())
+                    }
+                )
             }
         }
         composable(
@@ -77,6 +87,18 @@ fun WhisperNavGraph(
                 onBackPressed = {
                     navController.popBackStack()
                 },
+                viewModel
+            )
+        }
+        composable(
+            UPLOAD_IMAGE_ROUTE,
+            arguments = listOf(navArgument(IMAGE_URI_ARG) { nullable = false })
+        ) { entry ->
+            val uri = entry.arguments?.getString(IMAGE_URI_ARG)
+            val viewModel = hiltViewModel<UploadImageViewModel>()
+            UploadImageScreen(
+                uri!!,
+                onBackPressed = { navController.popBackStack() },
                 viewModel
             )
         }

@@ -1,5 +1,9 @@
 package com.rocky.whisper.setting
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,13 +16,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
 import com.rocky.whisper.util.Avatar
 import com.rocky.whisper.util.LogoTopAppBar
@@ -26,14 +32,38 @@ import com.rocky.whisper.util.LogoTopAppBar
 @Composable
 fun SettingScreen(
     modifier: Modifier = Modifier,
-    viewModel: SettingViewModel
+    viewModel: SettingViewModel,
+    onImageSelect: (uri: Uri) -> Unit
 ) {
-    SettingContent()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.fetchProfile()
+    }
+
+    SettingContent(
+        avatar = uiState.avatar,
+        onImageSelect = onImageSelect
+    )
 }
 
 @Composable
-@Preview(showBackground = true)
-fun SettingContent(modifier: Modifier = Modifier) {
+fun SettingContent(
+    avatar: String,
+    onImageSelect: (uri: Uri) -> Unit,
+    modifier: Modifier = Modifier
+) {
+
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri -> uri?.let(onImageSelect) }
+
+    fun launchPhotoPicker() {
+        singlePhotoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -42,7 +72,7 @@ fun SettingContent(modifier: Modifier = Modifier) {
     ) {
         LogoTopAppBar(R.string.setting, false)
         Spacer(modifier = Modifier.height(24.dp))
-        Avatar(size = 120.dp)
+        Avatar(avatar, size = 120.dp, onAvatarClick = { launchPhotoPicker() })
         Spacer(modifier = Modifier.height(24.dp))
         SettingItem(
             iconRes = R.drawable.ic_account_setting,
