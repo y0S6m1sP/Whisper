@@ -17,4 +17,7 @@
     <string name="help">Help</string>
     <string name="delete_account">Delete Account</string>
     <string name="upload">Upload</string>
+
+    <string name="error_upload_avatar_failure">upload avatar failure</string>
+    <string name="error_update_profile_failure">update profile failure</string>
 </resources>

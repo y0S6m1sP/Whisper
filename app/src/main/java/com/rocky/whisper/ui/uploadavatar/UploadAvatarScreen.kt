@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,9 +32,6 @@ fun UploadAvatarScreen(
     viewModel: UploadAvatarViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    LaunchedEffect(key1 = uiState) {
-        if (uiState.isUploadFinish) onBackPressed()
-    }
 
     val cropAvatarPadding = LocalDensity.current.run { 24.dp.toPx() }
     UploadAvatarContent(
@@ -43,7 +39,10 @@ fun UploadAvatarScreen(
         onBackPressed = onBackPressed,
         onUploadClick = { view ->
             viewModel.cropAndUploadAvatar(view, cropAvatarPadding)
-        }
+        },
+        isUploading = uiState.isUploading,
+        isUploadSuccess = uiState.isUploadSuccess,
+        isUploadComplete = uiState.isUploadComplete
     )
 }
 
@@ -52,6 +51,9 @@ fun UploadAvatarContent(
     uri: String,
     onBackPressed: () -> Unit,
     onUploadClick: (view: View) -> Unit,
+    isUploading: Boolean,
+    isUploadSuccess: Boolean,
+    isUploadComplete: Boolean,
     modifier: Modifier = Modifier
 ) {
 
@@ -66,7 +68,15 @@ fun UploadAvatarContent(
                 .fillMaxSize()
                 .padding(24.dp)
         )
-        CropAvatarDim(24.dp, modifier = Modifier.fillMaxSize())
+        CropAvatarDim(
+            24.dp,
+            modifier = Modifier.fillMaxSize(),
+            isLoading = isUploading,
+            isSuccess = isUploadSuccess,
+            isComplete = isUploadComplete
+        ) {
+            onBackPressed()
+        }
         Column(
             Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.End
@@ -80,7 +90,7 @@ fun UploadAvatarContent(
                 color = Color.White,
                 modifier = Modifier
                     .padding(24.dp)
-                    .noRippleClickable {
+                    .noRippleClickable(enabled = !isUploading) {
                         onUploadClick(view)
                     }
             )
