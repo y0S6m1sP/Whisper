@@ -1,4 +1,4 @@
-package com.rocky.whisper.util
+package com.rocky.whisper.util.component
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size
@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import coil.compose.AsyncImage
+import com.rocky.whisper.util.noRippleClickable
 
 @Composable
 fun Avatar(uri: String = "", size: Dp, onAvatarClick: (() -> Unit)? = null) {

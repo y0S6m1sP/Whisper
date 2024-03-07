@@ -7,5 +7,5 @@ interface ProfileRepository {
 
     suspend fun fetchProfile(): Flow<Profile?>
 
-    suspend fun uploadImage(data: ByteArray): Flow<Boolean>
+    suspend fun uploadAvatar(data: ByteArray): Flow<Boolean>
 }

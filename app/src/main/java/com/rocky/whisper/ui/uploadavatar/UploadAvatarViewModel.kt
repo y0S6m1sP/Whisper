@@ -1,4 +1,4 @@
-package com.rocky.whisper.uploadimage
+package com.rocky.whisper.ui.uploadavatar
 
 import android.view.View
 import androidx.compose.ui.geometry.Offset
@@ -22,7 +22,7 @@ data class ProfileUiState(
 )
 
 @HiltViewModel
-class UploadImageViewModel @Inject constructor(
+class UploadAvatarViewModel @Inject constructor(
     private val profileRepository: ProfileRepository,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -30,11 +30,11 @@ class UploadImageViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileUiState())
     val uiState: StateFlow<ProfileUiState> = _uiState
 
-    fun cropAndUploadImage(view: View, padding: Float) {
+    fun cropAndUploadAvatar(view: View, padding: Float) {
         val bounds = Rect(Offset(view.pivotX, view.pivotY), view.width / 2 - padding)
         BitmapUtils.cropImage(view, bounds) {
             viewModelScope.launch(dispatcher) {
-                profileRepository.uploadImage(it).collectLatest {
+                profileRepository.uploadAvatar(it).collectLatest {
                     _uiState.update { currentState ->
                         currentState.copy(isUploadFinish = it)
                     }

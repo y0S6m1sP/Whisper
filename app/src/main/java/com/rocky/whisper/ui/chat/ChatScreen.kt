@@ -1,4 +1,4 @@
-package com.rocky.whisper.chat
+package com.rocky.whisper.ui.chat
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -40,8 +40,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
 import com.rocky.whisper.data.Message
-import com.rocky.whisper.util.Avatar
-import com.rocky.whisper.util.DefaultTopAppBar
+import com.rocky.whisper.util.component.Avatar
+import com.rocky.whisper.util.component.DefaultTopAppBar
 import com.rocky.whisper.util.noRippleClickable
 
 

@@ -8,13 +8,13 @@ import com.rocky.whisper.WhisperDestinationsArgs.ROOM_ID_ARG
 import com.rocky.whisper.WhisperScreens.CHAT_SCREEN
 import com.rocky.whisper.WhisperScreens.HOME_SCREEN
 import com.rocky.whisper.WhisperScreens.SETTING_SCREEN
-import com.rocky.whisper.WhisperScreens.UPLOAD_IMAGE_SCREEN
+import com.rocky.whisper.WhisperScreens.UPLOAD_AVATAR_SCREEN
 
 object WhisperScreens {
     const val HOME_SCREEN = "home"
     const val CHAT_SCREEN = "chat"
     const val SETTING_SCREEN = "setting"
-    const val UPLOAD_IMAGE_SCREEN = "upload_image"
+    const val UPLOAD_AVATAR_SCREEN = "upload_avatar"
 }
 
 object WhisperDestinationsArgs {
@@ -27,7 +27,7 @@ object WhisperDestinations {
     const val HOME_ROUTE = HOME_SCREEN
     const val SETTING_ROUTE = SETTING_SCREEN
     const val CHAT_ROUTE = "$CHAT_SCREEN/{$ROOM_ID_ARG}"
-    const val UPLOAD_IMAGE_ROUTE = "$UPLOAD_IMAGE_SCREEN?$IMAGE_URI_ARG={$IMAGE_URI_ARG}"
+    const val UPLOAD_IMAGE_ROUTE = "$UPLOAD_AVATAR_SCREEN?$IMAGE_URI_ARG={$IMAGE_URI_ARG}"
 }
 
 class WhisperNavigationActions(private val navController: NavHostController) {
@@ -44,8 +44,8 @@ class WhisperNavigationActions(private val navController: NavHostController) {
         navController.navigate("$CHAT_SCREEN/$roomId")
     }
 
-    fun navigateToUploadImage(uri: String) {
-        navController.navigate("$UPLOAD_IMAGE_SCREEN?$IMAGE_URI_ARG=$uri")
+    fun navigateToUploadAvatar(uri: String) {
+        navController.navigate("$UPLOAD_AVATAR_SCREEN?$IMAGE_URI_ARG=$uri")
     }
 
 }

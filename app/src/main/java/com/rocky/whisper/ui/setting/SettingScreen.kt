@@ -1,4 +1,4 @@
-package com.rocky.whisper.setting
+package com.rocky.whisper.ui.setting
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -26,8 +26,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
-import com.rocky.whisper.util.Avatar
-import com.rocky.whisper.util.LogoTopAppBar
+import com.rocky.whisper.util.component.Avatar
+import com.rocky.whisper.util.component.LogoTopAppBar
 
 @Composable
 fun SettingScreen(

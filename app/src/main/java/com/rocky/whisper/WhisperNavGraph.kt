@@ -17,16 +17,16 @@ import com.rocky.whisper.WhisperDestinations.HOME_ROUTE
 import com.rocky.whisper.WhisperDestinations.SETTING_ROUTE
 import com.rocky.whisper.WhisperDestinations.UPLOAD_IMAGE_ROUTE
 import com.rocky.whisper.WhisperDestinationsArgs.IMAGE_URI_ARG
-import com.rocky.whisper.chat.ChatScreen
-import com.rocky.whisper.chat.ChatViewModel
-import com.rocky.whisper.home.HomeScreen
-import com.rocky.whisper.home.HomeViewModel
-import com.rocky.whisper.setting.SettingScreen
-import com.rocky.whisper.setting.SettingViewModel
-import com.rocky.whisper.uploadimage.UploadImageScreen
-import com.rocky.whisper.uploadimage.UploadImageViewModel
-import com.rocky.whisper.util.BottomAppBarTab
-import com.rocky.whisper.util.WhisperBottomAppBar
+import com.rocky.whisper.ui.chat.ChatScreen
+import com.rocky.whisper.ui.chat.ChatViewModel
+import com.rocky.whisper.ui.home.HomeScreen
+import com.rocky.whisper.ui.home.HomeViewModel
+import com.rocky.whisper.ui.setting.SettingScreen
+import com.rocky.whisper.ui.setting.SettingViewModel
+import com.rocky.whisper.ui.uploadavatar.UploadAvatarScreen
+import com.rocky.whisper.ui.uploadavatar.UploadAvatarViewModel
+import com.rocky.whisper.util.component.BottomAppBarTab
+import com.rocky.whisper.util.component.WhisperBottomAppBar
 
 @Composable
 fun WhisperNavGraph(
@@ -69,7 +69,7 @@ fun WhisperNavGraph(
                 SettingScreen(
                     viewModel = viewModel,
                     onImageSelect = { uri ->
-                        navActions.navigateToUploadImage(uri.toString())
+                        navActions.navigateToUploadAvatar(uri.toString())
                     }
                 )
             }
@@ -95,8 +95,8 @@ fun WhisperNavGraph(
             arguments = listOf(navArgument(IMAGE_URI_ARG) { nullable = false })
         ) { entry ->
             val uri = entry.arguments?.getString(IMAGE_URI_ARG)
-            val viewModel = hiltViewModel<UploadImageViewModel>()
-            UploadImageScreen(
+            val viewModel = hiltViewModel<UploadAvatarViewModel>()
+            UploadAvatarScreen(
                 uri!!,
                 onBackPressed = { navController.popBackStack() },
                 viewModel

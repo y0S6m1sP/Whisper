@@ -1,4 +1,4 @@
-package com.rocky.whisper.util
+package com.rocky.whisper.util.component
 
 import android.net.Uri
 import androidx.compose.foundation.gestures.detectTransformGestures
