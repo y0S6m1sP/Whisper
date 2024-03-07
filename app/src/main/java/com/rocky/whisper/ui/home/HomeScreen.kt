@@ -1,4 +1,4 @@
-package com.rocky.whisper.home
+package com.rocky.whisper.ui.home
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
-import com.rocky.whisper.util.Avatar
-import com.rocky.whisper.util.LogoTopAppBar
-import com.rocky.whisper.util.WhisperDialog
+import com.rocky.whisper.util.component.Avatar
+import com.rocky.whisper.util.component.LogoTopAppBar
+import com.rocky.whisper.util.component.WhisperDialog
 
 @Composable
 fun HomeScreen(

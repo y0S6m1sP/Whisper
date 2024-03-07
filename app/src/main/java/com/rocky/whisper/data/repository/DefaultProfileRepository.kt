@@ -37,7 +37,7 @@ class DefaultProfileRepository @Inject constructor(
         }
     }
 
-    override suspend fun uploadImage(data: ByteArray): Flow<Boolean> {
+    override suspend fun uploadAvatar(data: ByteArray): Flow<Boolean> {
         return callbackFlow {
             val user = signInRepository.getOrSignInAnonymously()
             user?.uid?.let { uid ->
@@ -52,9 +52,9 @@ class DefaultProfileRepository @Inject constructor(
                     avatarRef.downloadUrl
                 }.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        val downloadUri = task.result
+                        val downloadUrl = task.result
                         db.collection(COLLECTION_USERS).document(uid)
-                            .set(hashMapOf("avatar" to downloadUri.toString()))
+                            .set(hashMapOf("avatar" to downloadUrl.toString()))
                             .addOnCompleteListener { updateProfileTask ->
                                 if (updateProfileTask.isSuccessful) {
                                     trySend(true)

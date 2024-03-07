@@ -1,4 +1,4 @@
-package com.rocky.whisper.util
+package com.rocky.whisper.util.component
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import com.rocky.whisper.R
 import com.rocky.whisper.WhisperNavigationActions
 import com.rocky.whisper.ui.theme.IconStyle
+import com.rocky.whisper.util.noRippleClickable
 
 enum class BottomAppBarTab {
     Home, Setting

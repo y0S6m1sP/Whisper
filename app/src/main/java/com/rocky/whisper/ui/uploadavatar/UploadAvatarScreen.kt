@@ -1,4 +1,4 @@
-package com.rocky.whisper.uploadimage
+package com.rocky.whisper.ui.uploadavatar
 
 import android.view.View
 import androidx.compose.foundation.background
@@ -21,16 +21,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
-import com.rocky.whisper.util.CropAvatarDim
-import com.rocky.whisper.util.DefaultTopAppBar
-import com.rocky.whisper.util.ScalableImage
+import com.rocky.whisper.util.component.CropAvatarDim
+import com.rocky.whisper.util.component.DefaultTopAppBar
+import com.rocky.whisper.util.component.ScalableImage
 import com.rocky.whisper.util.noRippleClickable
 
 @Composable
-fun UploadImageScreen(
+fun UploadAvatarScreen(
     uri: String,
     onBackPressed: () -> Unit,
-    viewModel: UploadImageViewModel,
+    viewModel: UploadAvatarViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(key1 = uiState) {
@@ -38,17 +38,17 @@ fun UploadImageScreen(
     }
 
     val cropAvatarPadding = LocalDensity.current.run { 24.dp.toPx() }
-    UploadImageContent(
+    UploadAvatarContent(
         uri,
         onBackPressed = onBackPressed,
         onUploadClick = { view ->
-            viewModel.cropAndUploadImage(view, cropAvatarPadding)
+            viewModel.cropAndUploadAvatar(view, cropAvatarPadding)
         }
     )
 }
 
 @Composable
-fun UploadImageContent(
+fun UploadAvatarContent(
     uri: String,
     onBackPressed: () -> Unit,
     onUploadClick: (view: View) -> Unit,

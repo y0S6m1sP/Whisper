@@ -1,4 +1,4 @@
-package com.rocky.whisper.setting
+package com.rocky.whisper.ui.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

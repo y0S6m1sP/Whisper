@@ -1,4 +1,4 @@
-package com.rocky.whisper.chat
+package com.rocky.whisper.ui.chat
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

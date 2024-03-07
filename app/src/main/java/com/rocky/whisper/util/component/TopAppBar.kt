@@ -1,4 +1,4 @@
-package com.rocky.whisper.util
+package com.rocky.whisper.util.component
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Row
