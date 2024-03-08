@@ -1,5 +1,6 @@
 package com.rocky.whisper.data.repository
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.rocky.whisper.data.Message
 import com.rocky.whisper.data.Room
@@ -13,7 +14,7 @@ import javax.inject.Inject
 
 class DefaultMessageRepository @Inject constructor(
     private val db: FirebaseFirestore,
-    private val signInRepository: SignInRepository
+    private val auth: FirebaseAuth
 ) : MessageRepository {
     companion object {
         const val COLLECTION_ROOMS = "rooms"
@@ -23,7 +24,7 @@ class DefaultMessageRepository @Inject constructor(
 
     override suspend fun createRoom(id: String) {
         try {
-            val user = signInRepository.getOrSignInAnonymously()
+            val user =auth.currentUser
             val participants = mutableListOf<String>()
             user?.uid?.let { participants.add(it) }
             participants.add(id)
@@ -37,7 +38,7 @@ class DefaultMessageRepository @Inject constructor(
 
     override suspend fun fetchRoom(): Flow<List<String>> {
         return callbackFlow {
-            val user = signInRepository.getOrSignInAnonymously()
+            val user = auth.currentUser
             val listener = db.collection(COLLECTION_ROOMS)
                 .whereArrayContains(FIELD_PARTICIPANTS, user?.uid ?: "")
                 .addSnapshotListener { snapshot, error ->
@@ -62,7 +63,7 @@ class DefaultMessageRepository @Inject constructor(
 
     override suspend fun sendMessage(roomId: String, message: String) {
         try {
-            val user = signInRepository.getOrSignInAnonymously()
+            val user = auth.currentUser
             user?.uid?.let {
                 db.collection(COLLECTION_ROOMS)
                     .document(roomId)

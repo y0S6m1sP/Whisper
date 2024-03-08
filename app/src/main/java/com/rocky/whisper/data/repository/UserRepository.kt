@@ -1,12 +1,12 @@
 package com.rocky.whisper.data.repository
 
-import com.rocky.whisper.data.Profile
+import com.rocky.whisper.data.User
 import com.rocky.whisper.util.Async
 import kotlinx.coroutines.flow.Flow
 
-interface ProfileRepository {
+interface UserRepository {
 
-    suspend fun fetchProfile(): Flow<Profile?>
-
+    suspend fun signInAndCreateUser()
+    suspend fun fetchProfile(): Flow<User?>
     suspend fun uploadAvatar(data: ByteArray): Flow<Async<Unit>>
 }

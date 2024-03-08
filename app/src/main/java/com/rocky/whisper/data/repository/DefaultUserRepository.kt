@@ -1,29 +1,50 @@
 package com.rocky.whisper.data.repository
 
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import com.rocky.whisper.R
-import com.rocky.whisper.data.Profile
+import com.rocky.whisper.data.User
+import com.rocky.whisper.data.source.local.UserDao
+import com.rocky.whisper.data.toLocal
 import com.rocky.whisper.util.Async
+import com.rocky.whisper.util.RandomNameUtils
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
 
-class DefaultProfileRepository @Inject constructor(
+class DefaultUserRepository @Inject constructor(
     private val db: FirebaseFirestore,
     private val storage: FirebaseStorage,
-    private val signInRepository: SignInRepository,
-) : ProfileRepository {
+    private val auth: FirebaseAuth,
+    private val userDao: UserDao
+) : UserRepository {
 
     companion object {
         const val COLLECTION_USERS = "users"
     }
 
-    override suspend fun fetchProfile(): Flow<Profile?> {
+    override suspend fun signInAndCreateUser() {
+        auth.currentUser?.let {
+            return
+        }
+
+        try {
+            val task = auth.signInAnonymously().await()
+            val newUser = User(task.user!!.uid, RandomNameUtils.generateRandomName(), "")
+            db.collection(COLLECTION_USERS).document(task.user!!.uid).set(newUser).await()
+            userDao.insertUser(newUser.toLocal())
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
+    }
+
+    override suspend fun fetchProfile(): Flow<User?> {
         return callbackFlow {
-            val user = signInRepository.getOrSignInAnonymously()
+            val user = auth.currentUser
             val listener = user?.uid?.let { uid ->
                 db.collection(COLLECTION_USERS).document(uid)
                     .addSnapshotListener { snapshot, error ->
@@ -32,7 +53,7 @@ class DefaultProfileRepository @Inject constructor(
                             return@addSnapshotListener
                         }
 
-                        trySend(snapshot?.toObject(Profile::class.java))
+                        trySend(snapshot?.toObject(User::class.java))
                     }
             }
             awaitClose { listener?.remove() }
@@ -41,7 +62,7 @@ class DefaultProfileRepository @Inject constructor(
 
     override suspend fun uploadAvatar(data: ByteArray): Flow<Async<Unit>> {
         return callbackFlow {
-            val user = signInRepository.getOrSignInAnonymously()
+            val user = auth.currentUser
             user?.uid?.let { uid ->
                 trySend(Async.Loading)
                 val avatarRef = storage.reference.child("$uid.jpg")
