@@ -2,7 +2,7 @@ package com.rocky.whisper.ui.setting
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rocky.whisper.data.repository.ProfileRepository
+import com.rocky.whisper.data.repository.UserRepository
 import com.rocky.whisper.di.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,7 +19,7 @@ data class SettingUiState(
 
 @HiltViewModel
 class SettingViewModel @Inject constructor(
-    private val profileRepository: ProfileRepository,
+    private val userRepository: UserRepository,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -28,7 +28,7 @@ class SettingViewModel @Inject constructor(
 
     fun fetchProfile() {
         viewModelScope.launch(dispatcher) {
-            profileRepository.fetchProfile().collectLatest {
+            userRepository.fetchProfile().collectLatest {
                 _uiState.update { currentState ->
                     currentState.copy(avatar = it?.avatar ?: "")
                 }

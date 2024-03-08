@@ -5,7 +5,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rocky.whisper.data.repository.ProfileRepository
+import com.rocky.whisper.data.repository.UserRepository
 import com.rocky.whisper.di.IoDispatcher
 import com.rocky.whisper.util.Async
 import com.rocky.whisper.util.BitmapUtils
@@ -26,7 +26,7 @@ data class UploadAvatarUiState(
 
 @HiltViewModel
 class UploadAvatarViewModel @Inject constructor(
-    private val profileRepository: ProfileRepository,
+    private val userRepository: UserRepository,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -37,7 +37,7 @@ class UploadAvatarViewModel @Inject constructor(
         val bounds = Rect(Offset(view.pivotX, view.pivotY), view.width / 2 - padding)
         BitmapUtils.cropImage(view, bounds) {
             viewModelScope.launch(dispatcher) {
-                profileRepository.uploadAvatar(it).collectLatest {
+                userRepository.uploadAvatar(it).collectLatest {
                     produceUploadAvatarUiState(it)
                 }
             }
