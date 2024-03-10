@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
+import com.rocky.whisper.data.User
 import com.rocky.whisper.util.component.Avatar
 import com.rocky.whisper.util.component.LogoTopAppBar
 import com.rocky.whisper.util.component.WhisperDialog
@@ -46,21 +47,25 @@ fun HomeScreen(
 
     LaunchedEffect(Unit) {
         viewModel.fetchRoom()
+        viewModel.observeUser()
     }
 
     HomeContent(
         onWhisper = { viewModel.showWhisperDialog() },
+        user = uiState.user,
         recentChatList = uiState.recentChatList,
         onItemClick = onItemClick,
         onWhisperDialogDismiss = { viewModel.hideWhisperDialog() },
         onWhisperDialogSubmit = { viewModel.createRoom(it) },
-        isShowWhisperDialog = uiState.isShowWhisperDialog
+        isShowWhisperDialog = uiState.isShowWhisperDialog,
+        modifier = modifier
     )
 }
 
 @Composable
 fun HomeContent(
     modifier: Modifier = Modifier,
+    user: User?,
     recentChatList: List<String>,
     onItemClick: (String) -> Unit,
     onWhisper: () -> Unit,
@@ -73,7 +78,10 @@ fun HomeContent(
             .fillMaxSize()
             .padding(start = 24.dp, end = 24.dp)
     ) {
-        LogoTopAppBar(R.string.home, true)
+        LogoTopAppBar(
+            title = user?.name ?: stringResource(id = R.string.home),
+            avatar = user?.avatar
+        )
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {

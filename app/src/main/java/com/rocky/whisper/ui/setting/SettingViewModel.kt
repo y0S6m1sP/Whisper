@@ -26,11 +26,11 @@ class SettingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(SettingUiState())
     val uiState: StateFlow<SettingUiState> = _uiState
 
-    fun fetchProfile() {
+    fun observeUser() {
         viewModelScope.launch(dispatcher) {
-            userRepository.fetchProfile().collectLatest {
+            userRepository.observeUser().collectLatest {
                 _uiState.update { currentState ->
-                    currentState.copy(avatar = it?.avatar ?: "")
+                    currentState.copy(avatar = it.avatar!!)
                 }
             }
         }
