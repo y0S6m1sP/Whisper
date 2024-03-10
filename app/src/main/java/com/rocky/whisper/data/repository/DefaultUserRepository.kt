@@ -2,16 +2,24 @@ package com.rocky.whisper.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import com.rocky.whisper.R
 import com.rocky.whisper.data.User
 import com.rocky.whisper.data.source.local.UserDao
+import com.rocky.whisper.data.toExternal
 import com.rocky.whisper.data.toLocal
+import com.rocky.whisper.di.ApplicationScope
+import com.rocky.whisper.di.IoDispatcher
 import com.rocky.whisper.util.Async
 import com.rocky.whisper.util.RandomNameUtils
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 import javax.inject.Inject
@@ -20,7 +28,9 @@ class DefaultUserRepository @Inject constructor(
     private val db: FirebaseFirestore,
     private val storage: FirebaseStorage,
     private val auth: FirebaseAuth,
-    private val userDao: UserDao
+    private val userDao: UserDao,
+    @IoDispatcher private val dispatcher: CoroutineDispatcher,
+    @ApplicationScope private val scope: CoroutineScope
 ) : UserRepository {
 
     companion object {
@@ -42,28 +52,13 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun fetchProfile(): Flow<User?> {
-        return callbackFlow {
-            val user = auth.currentUser
-            val listener = user?.uid?.let { uid ->
-                db.collection(COLLECTION_USERS).document(uid)
-                    .addSnapshotListener { snapshot, error ->
-                        error?.let {
-                            Timber.e(error)
-                            return@addSnapshotListener
-                        }
-
-                        trySend(snapshot?.toObject(User::class.java))
-                    }
-            }
-            awaitClose { listener?.remove() }
-        }
+    override suspend fun observeUser(): Flow<User> {
+        return userDao.observeUserById(auth.currentUser?.uid ?: "").map { it.toExternal() }
     }
 
     override suspend fun uploadAvatar(data: ByteArray): Flow<Async<Unit>> {
         return callbackFlow {
-            val user = auth.currentUser
-            user?.uid?.let { uid ->
+            auth.currentUser?.uid?.let { uid ->
                 trySend(Async.Loading)
                 val avatarRef = storage.reference.child("$uid.jpg")
                 val uploadTask = avatarRef.putBytes(data)
@@ -76,9 +71,12 @@ class DefaultUserRepository @Inject constructor(
                     if (task.isSuccessful) {
                         val downloadUrl = task.result
                         db.collection(COLLECTION_USERS).document(uid)
-                            .set(hashMapOf("avatar" to downloadUrl.toString()))
+                            .set(hashMapOf("avatar" to downloadUrl.toString()), SetOptions.merge())
                             .addOnCompleteListener { updateProfileTask ->
                                 if (updateProfileTask.isSuccessful) {
+                                    scope.launch(dispatcher) {
+                                        userDao.updateAvatar(uid, downloadUrl.toString())
+                                    }
                                     trySend(Async.Success(Unit))
                                 } else {
                                     trySend(Async.Error(R.string.error_update_profile_failure))

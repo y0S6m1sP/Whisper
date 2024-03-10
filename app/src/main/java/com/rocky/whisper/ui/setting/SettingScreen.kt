@@ -38,12 +38,13 @@ fun SettingScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchProfile()
+        viewModel.observeUser()
     }
 
     SettingContent(
         avatar = uiState.avatar,
-        onImageSelect = onImageSelect
+        onImageSelect = onImageSelect,
+        modifier = modifier
     )
 }
 
@@ -70,7 +71,7 @@ fun SettingContent(
             .padding(start = 24.dp, end = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LogoTopAppBar(R.string.setting, false)
+        LogoTopAppBar(stringResource(id = R.string.setting))
         Spacer(modifier = Modifier.height(24.dp))
         Avatar(avatar, size = 120.dp, onAvatarClick = { launchPhotoPicker() })
         Spacer(modifier = Modifier.height(24.dp))
