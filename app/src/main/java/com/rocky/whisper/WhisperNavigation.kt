@@ -4,6 +4,8 @@ import androidx.navigation.NavHostController
 import com.rocky.whisper.WhisperDestinations.HOME_ROUTE
 import com.rocky.whisper.WhisperDestinations.SETTING_ROUTE
 import com.rocky.whisper.WhisperDestinationsArgs.IMAGE_URI_ARG
+import com.rocky.whisper.WhisperDestinationsArgs.OPPOSITE_USER_AVATAR_ARG
+import com.rocky.whisper.WhisperDestinationsArgs.OPPOSITE_USER_NAME_ARG
 import com.rocky.whisper.WhisperDestinationsArgs.ROOM_ID_ARG
 import com.rocky.whisper.WhisperScreens.CHAT_SCREEN
 import com.rocky.whisper.WhisperScreens.HOME_SCREEN
@@ -19,6 +21,8 @@ object WhisperScreens {
 
 object WhisperDestinationsArgs {
     const val ROOM_ID_ARG = "roomId"
+    const val OPPOSITE_USER_NAME_ARG = "opposite_user_name"
+    const val OPPOSITE_USER_AVATAR_ARG = "opposite_user_avatar"
     const val IMAGE_URI_ARG = "image_uri"
 }
 
@@ -26,7 +30,9 @@ object WhisperDestinationsArgs {
 object WhisperDestinations {
     const val HOME_ROUTE = HOME_SCREEN
     const val SETTING_ROUTE = SETTING_SCREEN
-    const val CHAT_ROUTE = "$CHAT_SCREEN/{$ROOM_ID_ARG}"
+    const val CHAT_ROUTE = "$CHAT_SCREEN/{$ROOM_ID_ARG}" +
+            "?$OPPOSITE_USER_NAME_ARG={$OPPOSITE_USER_NAME_ARG}" +
+            "&$OPPOSITE_USER_AVATAR_ARG={$OPPOSITE_USER_AVATAR_ARG}"
     const val UPLOAD_IMAGE_ROUTE = "$UPLOAD_AVATAR_SCREEN?$IMAGE_URI_ARG={$IMAGE_URI_ARG}"
 }
 
@@ -40,8 +46,9 @@ class WhisperNavigationActions(private val navController: NavHostController) {
         navController.navigate(SETTING_ROUTE)
     }
 
-    fun navigateToChat(roomId: String) {
-        navController.navigate("$CHAT_SCREEN/$roomId")
+    fun navigateToChat(roomId: String, oppositeUserName: String, oppositeUserAvatar: String) {
+        val avatarUrl = oppositeUserAvatar.replace("&", "%26")
+        navController.navigate("$CHAT_SCREEN/$roomId?${OPPOSITE_USER_NAME_ARG}=$oppositeUserName&${OPPOSITE_USER_AVATAR_ARG}=$avatarUrl")
     }
 
     fun navigateToUploadAvatar(uri: String) {

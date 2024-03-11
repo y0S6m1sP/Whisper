@@ -17,6 +17,8 @@ import com.rocky.whisper.WhisperDestinations.HOME_ROUTE
 import com.rocky.whisper.WhisperDestinations.SETTING_ROUTE
 import com.rocky.whisper.WhisperDestinations.UPLOAD_IMAGE_ROUTE
 import com.rocky.whisper.WhisperDestinationsArgs.IMAGE_URI_ARG
+import com.rocky.whisper.WhisperDestinationsArgs.OPPOSITE_USER_AVATAR_ARG
+import com.rocky.whisper.WhisperDestinationsArgs.OPPOSITE_USER_NAME_ARG
 import com.rocky.whisper.ui.chat.ChatScreen
 import com.rocky.whisper.ui.chat.ChatViewModel
 import com.rocky.whisper.ui.home.HomeScreen
@@ -53,8 +55,8 @@ fun WhisperNavGraph(
                 selectedTab = BottomAppBarTab.Home
             ) {
                 HomeScreen(
-                    onItemClick = {
-                        navActions.navigateToChat(it)
+                    onItemClick = { id, name, avatar ->
+                        navActions.navigateToChat(id, name, avatar)
                     },
                     viewModel = viewModel
                 )
@@ -76,18 +78,25 @@ fun WhisperNavGraph(
         }
         composable(
             CHAT_ROUTE,
+            arguments = listOf(
+                navArgument(OPPOSITE_USER_NAME_ARG) { nullable = true },
+                navArgument(OPPOSITE_USER_AVATAR_ARG) { nullable = true }
+            ),
             enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
             exitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left) },
             popEnterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
             popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right) },
-        ) {
+        ) { entry ->
+            val oppositeUserName = entry.arguments?.getString(OPPOSITE_USER_NAME_ARG)
+            val oppositeUserAvatar = entry.arguments?.getString(OPPOSITE_USER_AVATAR_ARG)
             val viewModel = hiltViewModel<ChatViewModel>()
             ChatScreen(
-                topAppBarTitle = viewModel.roomId,
+                topAppBarTitle = oppositeUserName!!,
                 onBackPressed = {
                     navController.popBackStack()
                 },
-                viewModel
+                oppositeUserAvatar = oppositeUserAvatar!!,
+                viewModel = viewModel
             )
         }
         composable(

@@ -35,6 +35,7 @@ class DefaultUserRepository @Inject constructor(
 
     companion object {
         const val COLLECTION_USERS = "users"
+        const val FIELD_AVATAR = "avatar"
     }
 
     override suspend fun signInAndCreateUser() {
@@ -72,7 +73,7 @@ class DefaultUserRepository @Inject constructor(
                     if (task.isSuccessful) {
                         val downloadUrl = task.result
                         db.collection(COLLECTION_USERS).document(uid)
-                            .set(hashMapOf("avatar" to downloadUrl.toString()), SetOptions.merge())
+                            .set(hashMapOf(FIELD_AVATAR to downloadUrl.toString()), SetOptions.merge())
                             .addOnCompleteListener { updateProfileTask ->
                                 if (updateProfileTask.isSuccessful) {
                                     scope.launch(dispatcher) {

@@ -37,10 +37,11 @@ import com.rocky.whisper.data.User
 import com.rocky.whisper.util.component.Avatar
 import com.rocky.whisper.util.component.LogoTopAppBar
 import com.rocky.whisper.util.component.WhisperDialog
+import timber.log.Timber
 
 @Composable
 fun HomeScreen(
-    onItemClick: (String) -> Unit,
+    onItemClick: (id: String, name: String, avatar: String) -> Unit,
     viewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -69,7 +70,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     user: User?,
     recentChatList: List<Chatroom>,
-    onItemClick: (String) -> Unit,
+    onItemClick: (id: String, name: String, avatar: String) -> Unit,
     onWhisper: () -> Unit,
     onWhisperDialogDismiss: () -> Unit,
     onWhisperDialogSubmit: (id: String) -> Unit,
@@ -135,27 +136,37 @@ fun UnReadWhisper(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WhisperItem(chatroom: Chatroom, onItemClick: (String) -> Unit, modifier: Modifier = Modifier) {
+fun WhisperItem(
+    chatroom: Chatroom,
+    onItemClick: (id: String, name: String, avatar: String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     val oppositeUser = chatroom.parseOppositeUser()
+    val oppositeUserName = oppositeUser?.name ?: "unknown"
+    val oppositeUserAvatar = oppositeUser?.avatar ?: ""
     Row(
         modifier
             .fillMaxWidth()
             .height(64.dp)
             .clickable {
-                onItemClick(chatroom.id!!)
+                onItemClick(
+                    chatroom.id!!,
+                    oppositeUserName,
+                    oppositeUserAvatar
+                )
             }
     ) {
-        Avatar(oppositeUser?.avatar ?: "", size = 64.dp)
+        Avatar(oppositeUserAvatar, size = 64.dp)
         Spacer(modifier = Modifier.width(8.dp))
         Column(
             Modifier
                 .fillMaxHeight()
                 .padding(bottom = 8.dp)
         ) {
-            Text(text = oppositeUser?.name ?: "unknown")
+            Text(text = oppositeUserName)
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                text = "last message...",
+                text = "${chatroom.lastMessage}",
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.secondary,
             )
