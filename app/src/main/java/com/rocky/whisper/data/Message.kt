@@ -6,9 +6,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Message(
+    val id: String = "",
     val senderId: String = "",
     val message: String = "",
-    val timestamp: Long = 0L,
+    val lastUpdate: Long = 0L,
 ) {
     fun isCurrentUser(): Boolean {
         return senderId == Firebase.auth.uid

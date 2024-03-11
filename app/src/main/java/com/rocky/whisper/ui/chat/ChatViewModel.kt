@@ -39,10 +39,14 @@ class ChatViewModel @Inject constructor(
     }
 
     fun fetchMessage() {
+        messageRepository.fetchMessage(roomId)
+    }
+
+    fun observeMessage() {
         viewModelScope.launch(dispatcher) {
-            messageRepository.fetchMessage(roomId).collectLatest {
+            messageRepository.observeMessage(roomId).collectLatest {
                 _uiState.update { currentState ->
-                    currentState.copy(messageList = it.sortedByDescending { it.timestamp })
+                    currentState.copy(messageList = it.sortedByDescending { it.lastUpdate })
                 }
             }
         }

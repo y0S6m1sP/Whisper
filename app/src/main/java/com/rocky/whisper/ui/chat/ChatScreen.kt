@@ -56,6 +56,7 @@ fun ChatScreen(
 
     LaunchedEffect(Unit) {
         viewModel.fetchMessage()
+        viewModel.observeMessage()
     }
 
     ChatContent(
@@ -63,6 +64,7 @@ fun ChatScreen(
         topAppBarTitle = topAppBarTitle,
         onBackPressed = { onBackPressed() },
         onSendMessage = { viewModel.sendMessage(it) },
+        modifier = modifier
     )
 }
 
@@ -71,12 +73,13 @@ fun ChatContent(
     messageList: List<Message>,
     topAppBarTitle: String,
     onBackPressed: () -> Unit,
-    onSendMessage: (String) -> Unit
+    onSendMessage: (String) -> Unit,
+    modifier: Modifier,
 ) {
     val focusManager = LocalFocusManager.current
 
     Column(
-        Modifier.fillMaxHeight()
+        modifier.fillMaxHeight()
     ) {
         DefaultTopAppBar(title = topAppBarTitle, onBackPressed = { onBackPressed() })
         Column(
