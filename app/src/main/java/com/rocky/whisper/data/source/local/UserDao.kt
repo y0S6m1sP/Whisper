@@ -17,7 +17,7 @@ interface UserDao {
     suspend fun updateUser(user: LocalUser)
 
     @Query("SELECT * FROM user WHERE id = :userId")
-    fun observeUserById(userId: String): Flow<LocalUser>
+    fun observeUserById(userId: String): Flow<LocalUser?>
 
     @Query("UPDATE user SET avatar = :avatar WHERE id = :userId")
     suspend fun updateAvatar(userId: String, avatar: String)

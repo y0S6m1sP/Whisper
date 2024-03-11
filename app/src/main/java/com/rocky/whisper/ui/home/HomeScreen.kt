@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
+import com.rocky.whisper.data.Chatroom
 import com.rocky.whisper.data.User
 import com.rocky.whisper.util.component.Avatar
 import com.rocky.whisper.util.component.LogoTopAppBar
@@ -46,7 +47,8 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchRoom()
+        viewModel.fetchChatroom()
+        viewModel.observeChatroom()
         viewModel.observeUser()
     }
 
@@ -66,7 +68,7 @@ fun HomeScreen(
 fun HomeContent(
     modifier: Modifier = Modifier,
     user: User?,
-    recentChatList: List<String>,
+    recentChatList: List<Chatroom>,
     onItemClick: (String) -> Unit,
     onWhisper: () -> Unit,
     onWhisperDialogDismiss: () -> Unit,
@@ -108,9 +110,7 @@ fun HomeContent(
                 )
             }
             items(recentChatList) {
-                WhisperItem(onItemClick = {
-                    onItemClick(it)
-                })
+                WhisperItem(chatroom = it, onItemClick = onItemClick)
             }
         }
     }
@@ -135,23 +135,24 @@ fun UnReadWhisper(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WhisperItem(onItemClick: () -> Unit, modifier: Modifier = Modifier) {
+fun WhisperItem(chatroom: Chatroom, onItemClick: (String) -> Unit, modifier: Modifier = Modifier) {
+    val oppositeUser = chatroom.parseOppositeUser()
     Row(
         modifier
             .fillMaxWidth()
             .height(64.dp)
             .clickable {
-                onItemClick()
+                onItemClick(chatroom.id!!)
             }
     ) {
-        Avatar(size = 64.dp)
+        Avatar(oppositeUser?.avatar ?: "", size = 64.dp)
         Spacer(modifier = Modifier.width(8.dp))
         Column(
             Modifier
                 .fillMaxHeight()
                 .padding(bottom = 8.dp)
         ) {
-            Text(text = "name")
+            Text(text = oppositeUser?.name ?: "unknown")
             Spacer(modifier = Modifier.weight(1f))
             Text(
                 text = "last message...",
