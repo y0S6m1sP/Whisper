@@ -14,5 +14,7 @@ interface MessageRepository {
 
     suspend fun sendMessage(roomId: String, message: String)
 
-    suspend fun fetchMessage(roomId: String): Flow<List<Message>>
+    fun fetchMessage(roomId: String)
+
+    suspend fun observeMessage(roomId: String): Flow<List<Message>>
 }

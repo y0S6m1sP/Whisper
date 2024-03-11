@@ -7,6 +7,7 @@ import com.rocky.whisper.data.Message
 import com.rocky.whisper.data.User
 import com.rocky.whisper.data.repository.DefaultUserRepository.Companion.COLLECTION_USERS
 import com.rocky.whisper.data.source.local.ChatroomDao
+import com.rocky.whisper.data.source.local.MessageDao
 import com.rocky.whisper.data.toExternal
 import com.rocky.whisper.data.toLocal
 import com.rocky.whisper.di.ApplicationScope
@@ -14,10 +15,7 @@ import com.rocky.whisper.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -28,6 +26,7 @@ class DefaultMessageRepository @Inject constructor(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
     private val chatroomDao: ChatroomDao,
+    private val messageDao: MessageDao,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope
 ) : MessageRepository {
@@ -101,35 +100,46 @@ class DefaultMessageRepository @Inject constructor(
         try {
             val user = auth.currentUser
             user?.uid?.let {
-                db.collection(COLLECTION_ROOMS)
+                val doc = db.collection(COLLECTION_ROOMS)
                     .document(roomId)
-                    .collection(COLLECTION_MESSAGES)
-                    .add(Message(it, message, System.currentTimeMillis())).await()
+                    .collection(COLLECTION_MESSAGES).document()
+                doc.set(Message(doc.id, it, message, System.currentTimeMillis())).await()
             }
         } catch (e: Exception) {
             Timber.e(e)
         }
     }
 
-    override suspend fun fetchMessage(roomId: String): Flow<List<Message>> {
-        return callbackFlow {
-            delay(300)
-            val listener = db.collection(COLLECTION_ROOMS)
-                .document(roomId)
-                .collection(COLLECTION_MESSAGES)
-                .addSnapshotListener { snapshot, error ->
-                    error?.let {
-                        Timber.e(error)
-                        return@addSnapshotListener
-                    }
+    override fun fetchMessage(roomId: String) {
+        db.collection(COLLECTION_ROOMS)
+            .document(roomId)
+            .collection(COLLECTION_MESSAGES)
+            .addSnapshotListener { snapshot, error ->
+                error?.let {
+                    Timber.e(error)
+                    return@addSnapshotListener
+                }
 
-                    snapshot?.let {
-                        trySend(it.toObjects(Message::class.java))
+                snapshot?.let {
+                    scope.launch(dispatcher) {
+                        val messages = it.toObjects(Message::class.java)
+                            .map { message -> message.toLocal(roomId) }
+                            .sortedByDescending { message -> message.lastUpdate }
+                        if (messages.isNotEmpty()) {
+                            messageDao.insertAll(*messages.toTypedArray())
+                            chatroomDao.updateLastMessage(
+                                roomId,
+                                messages.first().message,
+                                System.currentTimeMillis()
+                            )
+                        }
                     }
                 }
-            awaitClose {
-                listener.remove()
             }
-        }
+    }
+
+    override suspend fun observeMessage(roomId: String): Flow<List<Message>> {
+        return messageDao.observeAll(roomId)
+            .map { it.map { localMessage -> localMessage.toExternal() } }
     }
 }
