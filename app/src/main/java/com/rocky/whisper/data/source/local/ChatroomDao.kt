@@ -14,7 +14,4 @@ interface ChatroomDao {
 
     @Query("SELECT * FROM chatroom")
     fun observeAll(): Flow<List<LocalChatroom>>
-
-    @Query("UPDATE chatroom SET lastMessage = :message, lastUpdate = :time WHERE id = :roomId")
-    suspend fun updateLastMessage(roomId: String, message: String, time: Long)
 }

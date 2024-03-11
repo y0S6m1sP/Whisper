@@ -13,6 +13,6 @@ data class Chatroom(
     val lastUpdate: Long? = null
 ) {
     fun parseOppositeUser(): User? {
-        return userDetails?.first { it.id != Firebase.auth.currentUser?.uid }
+        return userDetails?.firstOrNull { it.id != Firebase.auth.currentUser?.uid }
     }
 }

@@ -43,10 +43,12 @@ import com.rocky.whisper.data.Message
 import com.rocky.whisper.util.component.Avatar
 import com.rocky.whisper.util.component.DefaultTopAppBar
 import com.rocky.whisper.util.noRippleClickable
+import timber.log.Timber
 
 
 @Composable
 fun ChatScreen(
+    oppositeUserAvatar: String,
     topAppBarTitle: String,
     onBackPressed: () -> Unit,
     viewModel: ChatViewModel,
@@ -60,6 +62,7 @@ fun ChatScreen(
     }
 
     ChatContent(
+        oppositeUserAvatar = oppositeUserAvatar,
         messageList = uiState.messageList,
         topAppBarTitle = topAppBarTitle,
         onBackPressed = { onBackPressed() },
@@ -70,6 +73,7 @@ fun ChatScreen(
 
 @Composable
 fun ChatContent(
+    oppositeUserAvatar: String,
     messageList: List<Message>,
     topAppBarTitle: String,
     onBackPressed: () -> Unit,
@@ -93,7 +97,7 @@ fun ChatContent(
                 reverseLayout = true
             ) {
                 items(messageList) {
-                    MessageItem(it)
+                    MessageItem(it, oppositeUserAvatar)
                 }
             }
         }
@@ -142,7 +146,7 @@ fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MessageItem(message: Message, modifier: Modifier = Modifier) {
+fun MessageItem(message: Message, oppositeUserAvatar: String, modifier: Modifier = Modifier) {
     if (message.isCurrentUser()) {
         Row(
             modifier = modifier
@@ -167,7 +171,8 @@ fun MessageItem(message: Message, modifier: Modifier = Modifier) {
                 .padding(start = 12.dp),
             verticalAlignment = Alignment.Bottom
         ) {
-            Avatar(size = 32.dp)
+            Timber.e("oppositeUserAvatar: $oppositeUserAvatar")
+            Avatar(uri = oppositeUserAvatar, size = 32.dp)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = message.message,

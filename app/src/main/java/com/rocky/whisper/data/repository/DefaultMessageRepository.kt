@@ -34,6 +34,8 @@ class DefaultMessageRepository @Inject constructor(
         const val COLLECTION_ROOMS = "rooms"
         const val COLLECTION_MESSAGES = "messages"
         const val FIELD_USERS = "users"
+        const val FIELD_LAST_MESSAGE = "lastMessage"
+        const val FIELD_LAST_UPDATE = "lastUpdate"
     }
 
     override fun createRoom(id: String) {
@@ -126,16 +128,27 @@ class DefaultMessageRepository @Inject constructor(
                             .map { message -> message.toLocal(roomId) }
                             .sortedByDescending { message -> message.lastUpdate }
                         if (messages.isNotEmpty()) {
+                            updateLastMessage(roomId, messages.first().message)
                             messageDao.insertAll(*messages.toTypedArray())
-                            chatroomDao.updateLastMessage(
-                                roomId,
-                                messages.first().message,
-                                System.currentTimeMillis()
-                            )
                         }
                     }
                 }
             }
+    }
+
+    private suspend fun updateLastMessage(roomId: String, message: String) {
+        try {
+            val updates = hashMapOf(
+                FIELD_LAST_MESSAGE to message,
+                FIELD_LAST_UPDATE to System.currentTimeMillis(),
+            )
+
+            db.collection((COLLECTION_ROOMS))
+                .document(roomId)
+                .update(updates as Map<String, Any>).await()
+        } catch (e: Exception) {
+            Timber.e(e)
+        }
     }
 
     override suspend fun observeMessage(roomId: String): Flow<List<Message>> {
