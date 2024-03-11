@@ -13,6 +13,7 @@ import com.rocky.whisper.data.repository.DefaultMessageRepository
 import com.rocky.whisper.data.repository.DefaultUserRepository
 import com.rocky.whisper.data.repository.MessageRepository
 import com.rocky.whisper.data.repository.UserRepository
+import com.rocky.whisper.data.source.local.ChatroomDao
 import com.rocky.whisper.data.source.local.UserDao
 import com.rocky.whisper.data.source.local.WhisperDatabase
 import dagger.Binds
@@ -75,5 +76,8 @@ object DatabaseModule {
     }
 
     @Provides
-    fun provideTaskDao(database: WhisperDatabase): UserDao = database.userDao()
+    fun provideUserDao(database: WhisperDatabase): UserDao = database.userDao()
+
+    @Provides
+    fun provideChatroomDao(database: WhisperDatabase): ChatroomDao = database.chatroomDao()
 }

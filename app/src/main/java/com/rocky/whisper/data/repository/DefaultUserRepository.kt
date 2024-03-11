@@ -52,8 +52,9 @@ class DefaultUserRepository @Inject constructor(
         }
     }
 
-    override suspend fun observeUser(): Flow<User> {
-        return userDao.observeUserById(auth.currentUser?.uid ?: "").map { it.toExternal() }
+    override suspend fun observeUser(): Flow<User?> {
+        // TODO: find better solution for first time login
+        return userDao.observeUserById(auth.currentUser?.uid ?: "").map { it?.toExternal() }
     }
 
     override suspend fun uploadAvatar(data: ByteArray): Flow<Async<Unit>> {

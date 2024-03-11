@@ -30,7 +30,7 @@ class SettingViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             userRepository.observeUser().collectLatest {
                 _uiState.update { currentState ->
-                    currentState.copy(avatar = it.avatar!!)
+                    currentState.copy(avatar = it?.avatar ?: "")
                 }
             }
         }

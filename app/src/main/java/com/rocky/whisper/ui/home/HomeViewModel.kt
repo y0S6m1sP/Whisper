@@ -2,6 +2,7 @@ package com.rocky.whisper.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rocky.whisper.data.Chatroom
 import com.rocky.whisper.data.User
 import com.rocky.whisper.data.repository.MessageRepository
 import com.rocky.whisper.data.repository.UserRepository
@@ -18,7 +19,7 @@ import javax.inject.Inject
 data class HomeUiState(
     val user: User? = null,
     val isShowWhisperDialog: Boolean = false,
-    val recentChatList: List<String> = listOf(),
+    val recentChatList: List<Chatroom> = listOf(),
 )
 
 @HiltViewModel
@@ -47,9 +48,15 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun fetchRoom() {
+    fun fetchChatroom() {
         viewModelScope.launch(dispatcher) {
-            messageRepository.fetchRoom().collect {
+            messageRepository.fetchChatroom()
+        }
+    }
+
+    fun observeChatroom() {
+        viewModelScope.launch(dispatcher) {
+            messageRepository.observeChatroom().collect {
                 _uiState.update { currentState ->
                     currentState.copy(recentChatList = it)
                 }

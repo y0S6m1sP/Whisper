@@ -1,13 +1,16 @@
 package com.rocky.whisper.data.repository
 
+import com.rocky.whisper.data.Chatroom
 import com.rocky.whisper.data.Message
 import kotlinx.coroutines.flow.Flow
 
 interface MessageRepository {
 
-    suspend fun createRoom(id: String)
+    fun createRoom(id: String)
 
-    suspend fun fetchRoom(): Flow<List<String>>
+    fun fetchChatroom()
+
+    suspend fun observeChatroom(): Flow<List<Chatroom>>
 
     suspend fun sendMessage(roomId: String, message: String)
 
