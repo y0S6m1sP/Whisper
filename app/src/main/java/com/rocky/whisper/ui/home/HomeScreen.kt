@@ -1,5 +1,8 @@
 package com.rocky.whisper.ui.home
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,12 +53,14 @@ fun HomeScreen(
     LaunchedEffect(Unit) {
         viewModel.observeChatroom()
         viewModel.observeUser()
+        viewModel.observeMessageCount()
     }
 
     HomeContent(
         onWhisper = { viewModel.showWhisperDialog() },
         user = uiState.user,
         recentChatList = uiState.recentChatList,
+        messageCount = uiState.messageCount,
         onItemClick = onItemClick,
         onWhisperDialogDismiss = { viewModel.hideWhisperDialog() },
         onWhisperDialogSubmit = { viewModel.createRoom(it) },
@@ -70,6 +74,7 @@ fun HomeContent(
     modifier: Modifier = Modifier,
     user: User?,
     recentChatList: List<Chatroom>,
+    messageCount: Int,
     onItemClick: (id: String, name: String, avatar: String) -> Unit,
     onWhisper: () -> Unit,
     onWhisperDialogDismiss: () -> Unit,
@@ -92,7 +97,7 @@ fun HomeContent(
         ) {
             item {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                    UnReadWhisper()
+                    TotalMessage(messageCount = messageCount)
                     Spacer(modifier = Modifier.weight(1f))
                     ElevatedButton(onClick = { onWhisper() }) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -124,12 +129,16 @@ fun HomeContent(
 }
 
 @Composable
-@Preview(showBackground = true)
-fun UnReadWhisper(modifier: Modifier = Modifier) {
-    Column {
-        Text(text = "23", fontSize = 32.sp, fontWeight = FontWeight.Bold)
+fun TotalMessage(messageCount: Int, modifier: Modifier = Modifier) {
+    val animatedValue by animateIntAsState(
+        targetValue = messageCount,
+        animationSpec = tween(500, easing = FastOutSlowInEasing),
+        label = ""
+    )
+    Column(modifier) {
+        Text(text = "$animatedValue", fontSize = 32.sp, fontWeight = FontWeight.Bold)
         Text(
-            text = stringResource(id = R.string.unread_message),
+            text = stringResource(id = R.string.total_message),
             fontSize = 12.sp,
             fontWeight = FontWeight.Light,
             color = MaterialTheme.colorScheme.secondary

@@ -21,4 +21,7 @@ interface MessageDao {
 
     @Query("SELECT * FROM message WHERE roomId = :roomId")
     fun observeAll(roomId: String): Flow<List<LocalMessage>>
+
+    @Query("SELECT COUNT(*) FROM message")
+    fun observeMessageCount(): Flow<Int>
 }

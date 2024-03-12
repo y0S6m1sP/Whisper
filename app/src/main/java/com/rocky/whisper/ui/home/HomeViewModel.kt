@@ -20,6 +20,7 @@ data class HomeUiState(
     val user: User? = null,
     val isShowWhisperDialog: Boolean = false,
     val recentChatList: List<Chatroom> = listOf(),
+    val messageCount: Int = 0
 )
 
 @HiltViewModel
@@ -53,6 +54,16 @@ class HomeViewModel @Inject constructor(
             messageRepository.observeChatroom().collect {
                 _uiState.update { currentState ->
                     currentState.copy(recentChatList = it)
+                }
+            }
+        }
+    }
+
+    fun observeMessageCount() {
+        viewModelScope.launch(dispatcher) {
+            messageRepository.observeMessageCount().collect {
+                _uiState.update { currentState ->
+                    currentState.copy(messageCount = it)
                 }
             }
         }

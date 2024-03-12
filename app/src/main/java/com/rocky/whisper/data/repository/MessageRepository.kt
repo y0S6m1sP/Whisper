@@ -18,4 +18,6 @@ interface MessageRepository {
     fun fetchMessage(roomId: String): ListenerRegistration
 
     suspend fun observeMessage(roomId: String): Flow<List<Message>>
+
+    suspend fun observeMessageCount(): Flow<Int>
 }
