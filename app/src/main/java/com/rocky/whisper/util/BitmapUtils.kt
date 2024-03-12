@@ -27,9 +27,9 @@ object BitmapUtils {
             (view.context as Activity).window,
             android.graphics.Rect(
                 bounds.left.toInt(),
-                (bounds.top + SystemUtils.getStatusBarHeight()).toInt(),
+                bounds.top.toInt(),
                 bounds.right.toInt(),
-                (bounds.bottom + SystemUtils.getStatusBarHeight()).toInt()
+                bounds.bottom.toInt()
             ),
             bitmap, {
                 when (it) {
