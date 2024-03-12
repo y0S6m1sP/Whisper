@@ -3,6 +3,7 @@ package com.rocky.whisper.ui.chat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.ListenerRegistration
 import com.rocky.whisper.WhisperDestinationsArgs.ROOM_ID_ARG
 import com.rocky.whisper.data.Message
 import com.rocky.whisper.data.repository.MessageRepository
@@ -38,8 +39,8 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun fetchMessage() {
-        messageRepository.fetchMessage(roomId)
+    fun fetchMessage(): ListenerRegistration {
+        return messageRepository.fetchMessage(roomId)
     }
 
     fun observeMessage() {

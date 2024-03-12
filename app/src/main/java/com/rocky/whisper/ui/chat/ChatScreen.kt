@@ -24,6 +24,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,8 +57,14 @@ fun ChatScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+    DisposableEffect(key1 = Unit) {
+        val listener = viewModel.fetchMessage()
+        onDispose {
+            listener.remove()
+        }
+    }
+
     LaunchedEffect(Unit) {
-        viewModel.fetchMessage()
         viewModel.observeMessage()
     }
 
@@ -171,7 +178,6 @@ fun MessageItem(message: Message, oppositeUserAvatar: String, modifier: Modifier
                 .padding(start = 12.dp),
             verticalAlignment = Alignment.Bottom
         ) {
-            Timber.e("oppositeUserAvatar: $oppositeUserAvatar")
             Avatar(uri = oppositeUserAvatar, size = 32.dp)
             Spacer(modifier = Modifier.width(8.dp))
             Text(
