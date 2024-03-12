@@ -3,6 +3,7 @@ package com.rocky.whisper.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import com.rocky.whisper.data.Chatroom
 import com.rocky.whisper.data.Message
@@ -92,7 +93,7 @@ class DefaultMessageRepository @Inject constructor(
     }
 
     private fun handleChatroomDocumentChanges(snapshot: QuerySnapshot) {
-        scope.launch {
+        scope.launch(dispatcher) {
             for (dc in snapshot.documentChanges) {
                 val chatroom = dc.document.toObject(Chatroom::class.java).toLocal()
                 when (dc.type) {
@@ -131,10 +132,11 @@ class DefaultMessageRepository @Inject constructor(
         }
     }
 
-    override fun fetchMessage(roomId: String) {
-        db.collection(COLLECTION_ROOMS)
+    override fun fetchMessage(roomId: String): ListenerRegistration {
+        return db.collection(COLLECTION_ROOMS)
             .document(roomId)
             .collection(COLLECTION_MESSAGES)
+            .orderBy(FIELD_LAST_UPDATE)
             .addSnapshotListener { snapshot, error ->
                 error?.let {
                     Timber.e(error)
@@ -143,16 +145,32 @@ class DefaultMessageRepository @Inject constructor(
 
                 snapshot?.let {
                     scope.launch(dispatcher) {
-                        val messages = it.toObjects(Message::class.java)
-                            .map { message -> message.toLocal(roomId) }
-                            .sortedByDescending { message -> message.lastUpdate }
-                        if (messages.isNotEmpty()) {
-                            updateLastMessage(roomId, messages.first().message)
-                            messageDao.insertAll(*messages.toTypedArray())
-                        }
+                        handleMessageDocumentChanges(it, roomId)
                     }
                 }
             }
+    }
+
+    private fun handleMessageDocumentChanges(snapshot: QuerySnapshot, roomId: String) {
+        scope.launch {
+            for (dc in snapshot.documentChanges) {
+                val message = dc.document.toObject(Message::class.java).toLocal(roomId)
+                when (dc.type) {
+                    DocumentChange.Type.ADDED -> {
+                        messageDao.insertAll(message)
+                        updateLastMessage(roomId, message.message)
+                    }
+
+                    DocumentChange.Type.MODIFIED -> {
+                        messageDao.update(message.id, message.message)
+                    }
+
+                    DocumentChange.Type.REMOVED -> {
+                        messageDao.delete(message)
+                    }
+                }
+            }
+        }
     }
 
     private suspend fun updateLastMessage(roomId: String, message: String) {
