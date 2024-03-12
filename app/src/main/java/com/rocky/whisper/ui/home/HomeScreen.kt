@@ -48,7 +48,6 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
-        viewModel.fetchChatroom()
         viewModel.observeChatroom()
         viewModel.observeUser()
     }

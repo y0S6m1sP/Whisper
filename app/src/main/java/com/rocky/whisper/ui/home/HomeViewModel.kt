@@ -48,12 +48,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun fetchChatroom() {
-        viewModelScope.launch(dispatcher) {
-            messageRepository.fetchChatroom()
-        }
-    }
-
     fun observeChatroom() {
         viewModelScope.launch(dispatcher) {
             messageRepository.observeChatroom().collect {

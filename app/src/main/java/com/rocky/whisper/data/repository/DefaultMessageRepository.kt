@@ -1,7 +1,9 @@
 package com.rocky.whisper.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.QuerySnapshot
 import com.rocky.whisper.data.Chatroom
 import com.rocky.whisper.data.Message
 import com.rocky.whisper.data.User
@@ -84,13 +86,30 @@ class DefaultMessageRepository @Inject constructor(
                 }
 
                 snapshot?.let {
-                    val rooms = it.toObjects(Chatroom::class.java).map { room -> room.toLocal() }
-                    scope.launch(dispatcher) {
-                        // convert chatroom to vararg
-                        chatroomDao.insertAll(*rooms.toTypedArray())
+                    handleChatroomDocumentChanges(it)
+                }
+            }
+    }
+
+    private fun handleChatroomDocumentChanges(snapshot: QuerySnapshot) {
+        scope.launch {
+            for (dc in snapshot.documentChanges) {
+                val chatroom = dc.document.toObject(Chatroom::class.java).toLocal()
+                when (dc.type) {
+                    DocumentChange.Type.ADDED -> {
+                        chatroomDao.insertAll(chatroom)
+                    }
+
+                    DocumentChange.Type.MODIFIED -> {
+                        chatroomDao.update(chatroom)
+                    }
+
+                    DocumentChange.Type.REMOVED -> {
+                        chatroomDao.delete(chatroom)
                     }
                 }
             }
+        }
     }
 
     override suspend fun observeChatroom(): Flow<List<Chatroom>> {
