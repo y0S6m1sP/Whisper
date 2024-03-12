@@ -4,7 +4,7 @@
     <string name="setting">Setting</string>
     <string name="whisper">Whisper</string>
     <string name="join">Join</string>
-    <string name="unread_message">unread message</string>
+    <string name="total_message">total message</string>
     <string name="recent_chats">Recent Chats</string>
     <string name="enter_whisper_id">Enter Whisper ID</string>
     <string name="enter_whisper_id_desc">Enter another person\'s Whisper ID to begin Whispering.</string>

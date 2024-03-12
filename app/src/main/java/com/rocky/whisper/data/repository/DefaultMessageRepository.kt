@@ -192,4 +192,9 @@ class DefaultMessageRepository @Inject constructor(
         return messageDao.observeAll(roomId)
             .map { it.map { localMessage -> localMessage.toExternal() } }
     }
+
+    override suspend fun observeMessageCount(): Flow<Int> {
+        return messageDao.observeMessageCount()
+    }
+
 }
