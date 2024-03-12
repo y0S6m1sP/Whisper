@@ -44,7 +44,6 @@ import com.rocky.whisper.data.Message
 import com.rocky.whisper.util.component.Avatar
 import com.rocky.whisper.util.component.DefaultTopAppBar
 import com.rocky.whisper.util.noRippleClickable
-import timber.log.Timber
 
 
 @Composable
@@ -143,7 +142,10 @@ fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier) {
                 }
             }
         )
-        IconButton(onClick = { onSendMessage(text.text) }) {
+        IconButton(onClick = {
+            onSendMessage(text.text)
+            text = TextFieldValue()
+        }) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_filled_send),
                 contentDescription = "send"
