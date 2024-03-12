@@ -45,8 +45,8 @@ fun Avatar(uri: String = "", size: Dp, onAvatarClick: (() -> Unit)? = null) {
     AsyncImage(
         model = uri,
         contentDescription = null,
-        error = rememberVectorPainter(image = Icons.Sharp.AccountCircle),
-        placeholder = rememberVectorPainter(image = Icons.Sharp.AccountCircle),
+        error = painterResource(id = R.drawable.img_default_avatar),
+        placeholder = painterResource(id = R.drawable.img_default_avatar),
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
