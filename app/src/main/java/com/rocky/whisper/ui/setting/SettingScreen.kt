@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -75,7 +76,7 @@ fun SettingContent(
             .padding(start = 24.dp, end = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        LogoTopAppBar(stringResource(id = R.string.setting))
+        LogoTopAppBar(title = stringResource(id = R.string.setting))
         Spacer(modifier = Modifier.height(24.dp))
         Avatar(avatar, size = 120.dp, onAvatarClick = { launchPhotoPicker() })
         Spacer(modifier = Modifier.height(24.dp))
@@ -120,7 +121,7 @@ fun SettingItem(
     titleRes: Int,
     isNext: Boolean,
     modifier: Modifier = Modifier,
-    tint: Color = Color.Black
+    tint: Color = LocalContentColor.current
 ) {
     Row(
         modifier
