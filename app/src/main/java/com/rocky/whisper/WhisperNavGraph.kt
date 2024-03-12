@@ -63,11 +63,11 @@ fun WhisperNavGraph(
             }
         }
         composable(SETTING_ROUTE) {
+            val viewModel = hiltViewModel<SettingViewModel>()
             WhisperBottomAppBar(
                 navigationActions = navActions,
                 selectedTab = BottomAppBarTab.Setting
             ) {
-                val viewModel = hiltViewModel<SettingViewModel>()
                 SettingScreen(
                     viewModel = viewModel,
                     onImageSelect = { uri ->
