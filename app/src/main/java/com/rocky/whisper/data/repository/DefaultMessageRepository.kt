@@ -126,6 +126,7 @@ class DefaultMessageRepository @Inject constructor(
                     .document(roomId)
                     .collection(COLLECTION_MESSAGES).document()
                 doc.set(Message(doc.id, it, message, System.currentTimeMillis())).await()
+                updateLastMessage(roomId, message)
             }
         } catch (e: Exception) {
             Timber.e(e)
@@ -158,7 +159,6 @@ class DefaultMessageRepository @Inject constructor(
                 when (dc.type) {
                     DocumentChange.Type.ADDED -> {
                         messageDao.insertAll(message)
-                        updateLastMessage(roomId, message.message)
                     }
 
                     DocumentChange.Type.MODIFIED -> {
