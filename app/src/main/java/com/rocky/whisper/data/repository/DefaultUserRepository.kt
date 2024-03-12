@@ -2,9 +2,9 @@ package com.rocky.whisper.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.SetOptions
 import com.google.firebase.storage.FirebaseStorage
 import com.rocky.whisper.R
+import com.rocky.whisper.data.Chatroom
 import com.rocky.whisper.data.User
 import com.rocky.whisper.data.source.local.UserDao
 import com.rocky.whisper.data.toExternal
@@ -72,18 +72,14 @@ class DefaultUserRepository @Inject constructor(
                 }.addOnCompleteListener { task ->
                     if (task.isSuccessful) {
                         val downloadUrl = task.result
-                        db.collection(COLLECTION_USERS).document(uid)
-                            .set(hashMapOf(FIELD_AVATAR to downloadUrl.toString()), SetOptions.merge())
-                            .addOnCompleteListener { updateProfileTask ->
-                                if (updateProfileTask.isSuccessful) {
-                                    scope.launch(dispatcher) {
-                                        userDao.updateAvatar(uid, downloadUrl.toString())
-                                    }
-                                    trySend(Async.Success(Unit))
-                                } else {
-                                    trySend(Async.Error(R.string.error_update_profile_failure))
-                                }
-                            }
+                        updateAvatarToCurrentUser(
+                            uid,
+                            downloadUrl.toString(),
+                            { trySend(Async.Success(Unit)) },
+                            { trySend(Async.Error(R.string.error_update_profile_failure)) }
+                        )
+                        updateAvatarToChatroom(uid, downloadUrl.toString())
+
                     } else {
                         Timber.e(task.exception)
                         trySend(Async.Error(R.string.error_upload_avatar_failure))
@@ -92,5 +88,44 @@ class DefaultUserRepository @Inject constructor(
             }
             awaitClose {}
         }
+    }
+
+    private fun updateAvatarToCurrentUser(
+        uid: String,
+        downloadUrl: String,
+        onSuccess: () -> Unit,
+        onError: () -> Unit
+    ) {
+        db.collection(COLLECTION_USERS).document(uid)
+            .update(FIELD_AVATAR, downloadUrl)
+            .addOnCompleteListener { updateProfileTask ->
+                if (updateProfileTask.isSuccessful) {
+                    scope.launch(dispatcher) {
+                        userDao.updateAvatar(uid, downloadUrl)
+                    }
+                    onSuccess.invoke()
+                } else {
+                    onError.invoke()
+                }
+            }
+    }
+
+    private fun updateAvatarToChatroom(uid: String, downloadUrl: String) {
+        db.collection(DefaultMessageRepository.COLLECTION_ROOMS)
+            .whereArrayContains(DefaultMessageRepository.FIELD_USERS, auth.currentUser?.uid ?: "")
+            .get().addOnSuccessListener { result ->
+                result.documents.forEach { document ->
+                    val chatroom = document.toObject(Chatroom::class.java)
+                    chatroom?.let {
+                        val updatedUsers = chatroom.userDetails?.map { user ->
+                            if (user.id == uid) user.copy(avatar = downloadUrl) else user
+                        }
+                        val updatedChatroom = chatroom.copy(userDetails = updatedUsers)
+                        db.collection(DefaultMessageRepository.COLLECTION_ROOMS)
+                            .document(chatroom.id!!)
+                            .set(updatedChatroom)
+                    }
+                }
+            }
     }
 }
