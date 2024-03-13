@@ -18,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -38,23 +39,27 @@ class DefaultUserRepository @Inject constructor(
         const val FIELD_AVATAR = "avatar"
     }
 
-    override suspend fun signInAndCreateUser() {
-        auth.currentUser?.let {
-            return
-        }
+    override suspend fun signInAndCreateUser(): Flow<Async<Unit>> {
+        return flow {
+            auth.currentUser?.let {
+                emit(Async.Success(Unit))
+                return@flow
+            }
 
-        try {
-            val task = auth.signInAnonymously().await()
-            val newUser = User(task.user!!.uid, RandomNameUtils.generateRandomName(), "")
-            db.collection(COLLECTION_USERS).document(task.user!!.uid).set(newUser).await()
-            userDao.insertUser(newUser.toLocal())
-        } catch (e: Exception) {
-            Timber.e(e)
+            try {
+                val task = auth.signInAnonymously().await()
+                val newUser = User(task.user!!.uid, RandomNameUtils.generateRandomName(), "")
+                db.collection(COLLECTION_USERS).document(task.user!!.uid).set(newUser).await()
+                userDao.insertUser(newUser.toLocal())
+                emit(Async.Success(Unit))
+            } catch (e: Exception) {
+                Timber.e(e)
+                emit(Async.Error(R.string.error_sign_in_failure))
+            }
         }
     }
 
     override suspend fun observeUser(): Flow<User?> {
-        // TODO: find better solution for first time login
         return userDao.observeUserById(auth.currentUser?.uid ?: "").map { it?.toExternal() }
     }
 

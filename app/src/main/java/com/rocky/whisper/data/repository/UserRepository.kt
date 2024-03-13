@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UserRepository {
 
-    suspend fun signInAndCreateUser()
+    suspend fun signInAndCreateUser(): Flow<Async<Unit>>
     suspend fun observeUser(): Flow<User?>
     suspend fun uploadAvatar(data: ByteArray): Flow<Async<Unit>>
 }

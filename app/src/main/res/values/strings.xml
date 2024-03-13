@@ -20,4 +20,5 @@
 
     <string name="error_upload_avatar_failure">upload avatar failure</string>
     <string name="error_update_profile_failure">update profile failure</string>
+    <string name="error_sign_in_failure">sign in failure</string>
 </resources>

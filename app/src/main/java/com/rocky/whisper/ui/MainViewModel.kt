@@ -5,8 +5,10 @@ import androidx.lifecycle.viewModelScope
 import com.rocky.whisper.data.repository.MessageRepository
 import com.rocky.whisper.data.repository.UserRepository
 import com.rocky.whisper.di.IoDispatcher
+import com.rocky.whisper.util.Async
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,13 +19,31 @@ class MainViewModel @Inject constructor(
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
-    fun signInAnonymously() {
+    var isInitialized = false
+
+    fun signInAnonymously(onSuccess: () -> Unit) {
         viewModelScope.launch(dispatcher) {
-            userRepository.signInAndCreateUser()
+            userRepository.signInAndCreateUser().collectLatest {
+                when (it) {
+                    is Async.Success -> {
+                        onSuccess.invoke()
+                        fetchChatroom()
+                        isInitialized = true
+                    }
+
+                    is Async.Error -> {
+                        // TODO: handle error
+                    }
+
+                    is Async.Loading -> {
+
+                    }
+                }
+            }
         }
     }
 
-    fun fetchChatroom() {
+    private fun fetchChatroom() {
         viewModelScope.launch(dispatcher) {
             messageRepository.fetchChatroom()
         }
