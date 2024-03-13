@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Whisper"
 include(":app")
- 
+include(":shared-test")
