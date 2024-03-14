@@ -18,7 +18,7 @@ class DefaultImageCropper @Inject constructor() : ImageCropper {
         return byteArrayOutputStream.toByteArray()
     }
 
-    override fun cropImage(view: View, bounds: Rect, onCropSuccess: (ByteArray) -> Unit) {
+    override fun cropImage(view: View, bounds: Rect, onCropResult: (CropResult) -> Unit) {
         val bitmap = Bitmap.createBitmap(
             bounds.width.toInt(),
             bounds.height.toInt(),
@@ -35,7 +35,10 @@ class DefaultImageCropper @Inject constructor() : ImageCropper {
             bitmap, {
                 when (it) {
                     PixelCopy.SUCCESS -> {
-                        onCropSuccess.invoke(bitmapToByteArray(bitmap))
+                        onCropResult.invoke(CropResult.Success(bitmapToByteArray(bitmap)))
+                    }
+                    else -> {
+                        onCropResult.invoke(CropResult.Failure)
                     }
                 }
             }, Handler(Looper.getMainLooper())
