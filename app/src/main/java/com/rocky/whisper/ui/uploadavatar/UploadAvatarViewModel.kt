@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.rocky.whisper.data.repository.UserRepository
 import com.rocky.whisper.di.IoDispatcher
 import com.rocky.whisper.util.Async
-import com.rocky.whisper.util.BitmapUtils
+import com.rocky.whisper.util.imagecropper.ImageCropper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,6 +27,7 @@ data class UploadAvatarUiState(
 @HiltViewModel
 class UploadAvatarViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val imageCropper: ImageCropper,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
@@ -35,11 +36,15 @@ class UploadAvatarViewModel @Inject constructor(
 
     fun cropAndUploadAvatar(view: View, padding: Float) {
         val bounds = Rect(Offset(view.pivotX, view.pivotY), view.width / 2 - padding)
-        BitmapUtils.cropImage(view, bounds) {
-            viewModelScope.launch(dispatcher) {
-                userRepository.uploadAvatar(it).collectLatest {
-                    produceUploadAvatarUiState(it)
-                }
+        imageCropper.cropImage(view, bounds) {
+            uploadAvatar(it)
+        }
+    }
+
+    private fun uploadAvatar(byteArray: ByteArray) {
+        viewModelScope.launch(dispatcher) {
+            userRepository.uploadAvatar(byteArray).collectLatest {
+                produceUploadAvatarUiState(it)
             }
         }
     }

@@ -49,7 +49,7 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/*"
         }
     }
 }
@@ -101,6 +101,7 @@ dependencies {
     testImplementation("androidx.test:core-ktx:1.5.0")
     testImplementation("androidx.test.ext:junit-ktx:1.1.5")
     testImplementation("androidx.test:rules:1.5.0")
+    testImplementation("io.mockk:mockk:1.13.10")
     testImplementation(project(":shared-test"))
 
     androidTestImplementation(composeBom)
@@ -120,6 +121,7 @@ dependencies {
     androidTestImplementation("androidx.test.espresso.idling:idling-concurrent:3.5.1")
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.48.1")
     kspAndroidTest("com.google.dagger:hilt-android-compiler:2.48.1")
+    androidTestImplementation("io.mockk:mockk-android:1.13.10")
     androidTestImplementation(project(":shared-test"))
 
     debugImplementation("androidx.compose.ui:ui-tooling")

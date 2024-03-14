@@ -25,6 +25,8 @@ class FakeUserRepository: UserRepository {
     }
 
     override suspend fun uploadAvatar(data: ByteArray): Flow<Async<Unit>> {
-        TODO("Not yet implemented")
+        return flow {
+            emit(Async.Success(Unit))
+        }
     }
 }
