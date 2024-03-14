@@ -8,10 +8,17 @@ import kotlinx.coroutines.flow.flow
 
 class FakeMessageRepository: MessageRepository {
 
+    var messageList: MutableList<Message> = mutableListOf()
+        private set
     var recentChatList: MutableList<Chatroom> = mutableListOf()
         private set
     var messageCount = 0
         private set
+
+    fun setMessages(messages: List<Message>){
+        messageList.clear()
+        messageList.addAll(messages)
+    }
 
     fun setMessageCount(count: Int){
         messageCount = count
@@ -40,7 +47,9 @@ class FakeMessageRepository: MessageRepository {
     }
 
     override suspend fun observeMessage(roomId: String): Flow<List<Message>> {
-        TODO("Not yet implemented")
+        return flow {
+            emit(messageList)
+        }
     }
 
     override suspend fun observeMessageCount(): Flow<Int> {

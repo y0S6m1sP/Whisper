@@ -17,6 +17,8 @@ import com.rocky.whisper.data.source.local.ChatroomDao
 import com.rocky.whisper.data.source.local.MessageDao
 import com.rocky.whisper.data.source.local.UserDao
 import com.rocky.whisper.data.source.local.WhisperDatabase
+import com.rocky.whisper.util.imagecropper.DefaultImageCropper
+import com.rocky.whisper.util.imagecropper.ImageCropper
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -84,4 +86,13 @@ object DatabaseModule {
 
     @Provides
     fun provideMessageDao(database: WhisperDatabase): MessageDao = database.messageDao()
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class UtilModule {
+
+    @Singleton
+    @Binds
+    abstract fun bindImageCropper(imageCropper: DefaultImageCropper): ImageCropper
 }

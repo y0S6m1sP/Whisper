@@ -1,4 +1,4 @@
-package com.rocky.whisper.util
+package com.rocky.whisper.util.imagecropper
 
 import android.app.Activity
 import android.graphics.Bitmap
@@ -8,8 +8,9 @@ import android.view.PixelCopy
 import android.view.View
 import androidx.compose.ui.geometry.Rect
 import java.io.ByteArrayOutputStream
+import javax.inject.Inject
 
-object BitmapUtils {
+class DefaultImageCropper @Inject constructor() : ImageCropper {
 
     private fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
         val byteArrayOutputStream = ByteArrayOutputStream()
@@ -17,7 +18,7 @@ object BitmapUtils {
         return byteArrayOutputStream.toByteArray()
     }
 
-    fun cropImage(view: View, bounds: Rect, onCropSuccess: (ByteArray) -> Unit) {
+    override fun cropImage(view: View, bounds: Rect, onCropSuccess: (ByteArray) -> Unit) {
         val bitmap = Bitmap.createBitmap(
             bounds.width.toInt(),
             bounds.height.toInt(),
