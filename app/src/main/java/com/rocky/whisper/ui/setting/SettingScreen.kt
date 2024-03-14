@@ -52,7 +52,7 @@ fun SettingScreen(
 }
 
 @Composable
-fun SettingContent(
+private fun SettingContent(
     avatar: String,
     onImageSelect: (uri: Uri) -> Unit,
     modifier: Modifier = Modifier
@@ -116,7 +116,7 @@ fun SettingContent(
 }
 
 @Composable
-fun SettingItem(
+private fun SettingItem(
     iconRes: Int,
     titleRes: Int,
     isNext: Boolean,
