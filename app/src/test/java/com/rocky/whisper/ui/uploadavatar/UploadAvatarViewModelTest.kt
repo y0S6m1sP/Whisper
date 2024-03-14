@@ -1,5 +1,6 @@
 package com.rocky.whisper.ui.uploadavatar
 
+import androidx.compose.ui.geometry.Rect
 import com.rocky.shared_test.MainCoroutineRule
 import com.rocky.shared_test.data.repository.FakeUserRepository
 import com.rocky.shared_test.util.imagecropper.FakeImageCropper
@@ -44,7 +45,7 @@ class UploadAvatarViewModelTest {
 
     @Test
     fun cropAndUploadAvatar_updateUiState() = runTest {
-        uploadAvatarViewModel.cropAndUploadAvatar(view = mockk(relaxed = true), 0f)
+        uploadAvatarViewModel.cropAndUploadAvatar(view = mockk(relaxed = true), Rect.Zero)
 
         advanceUntilIdle()
 

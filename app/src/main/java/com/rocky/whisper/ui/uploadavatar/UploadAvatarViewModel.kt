@@ -1,13 +1,13 @@
 package com.rocky.whisper.ui.uploadavatar
 
 import android.view.View
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rocky.whisper.data.repository.UserRepository
 import com.rocky.whisper.di.IoDispatcher
 import com.rocky.whisper.util.Async
+import com.rocky.whisper.util.imagecropper.CropResult
 import com.rocky.whisper.util.imagecropper.ImageCropper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -34,10 +34,17 @@ class UploadAvatarViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UploadAvatarUiState())
     val uiState: StateFlow<UploadAvatarUiState> = _uiState
 
-    fun cropAndUploadAvatar(view: View, padding: Float) {
-        val bounds = Rect(Offset(view.pivotX, view.pivotY), view.width / 2 - padding)
-        imageCropper.cropImage(view, bounds) {
-            uploadAvatar(it)
+    fun cropAndUploadAvatar(view: View, bounds: Rect) {
+        imageCropper.cropImage(view, bounds) { result ->
+            when (result) {
+                is CropResult.Success -> {
+                    uploadAvatar(result.byteArray)
+                }
+
+                is CropResult.Failure -> {
+                    // handle crop failure
+                }
+            }
         }
     }
 

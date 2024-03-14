@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
@@ -40,7 +42,8 @@ fun UploadAvatarScreen(
         uri,
         onBackPressed = onBackPressed,
         onUploadClick = { view ->
-            viewModel.cropAndUploadAvatar(view, cropAvatarPadding)
+            val bounds = Rect(Offset(view.pivotX, view.pivotY), view.width / 2 - cropAvatarPadding)
+            viewModel.cropAndUploadAvatar(view, bounds)
         },
         isUploading = uiState.isUploading,
         isUploadSuccess = uiState.isUploadSuccess,
