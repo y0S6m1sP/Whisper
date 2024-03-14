@@ -83,7 +83,7 @@ fun ChatScreen(
 }
 
 @Composable
-fun ChatContent(
+private fun ChatContent(
     oppositeUserAvatar: String,
     messageList: List<Message>,
     topAppBarTitle: String,
@@ -120,7 +120,7 @@ fun ChatContent(
 }
 
 @Composable
-fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier) {
     var text by remember { mutableStateOf(TextFieldValue()) }
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -165,7 +165,7 @@ fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MessageItem(message: Message, oppositeUserAvatar: String, modifier: Modifier = Modifier) {
+private fun MessageItem(message: Message, oppositeUserAvatar: String, modifier: Modifier = Modifier) {
     if (message.isCurrentUser()) {
         Row(
             modifier = modifier

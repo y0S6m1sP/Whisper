@@ -49,7 +49,7 @@ fun UploadAvatarScreen(
 }
 
 @Composable
-fun UploadAvatarContent(
+private fun UploadAvatarContent(
     uri: String,
     onBackPressed: () -> Unit,
     onUploadClick: (view: View) -> Unit,

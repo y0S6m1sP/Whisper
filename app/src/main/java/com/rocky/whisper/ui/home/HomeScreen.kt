@@ -70,7 +70,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeContent(
+private fun HomeContent(
     modifier: Modifier = Modifier,
     user: User?,
     recentChatList: List<Chatroom>,
@@ -129,7 +129,7 @@ fun HomeContent(
 }
 
 @Composable
-fun TotalMessage(messageCount: Int, modifier: Modifier = Modifier) {
+private fun TotalMessage(messageCount: Int, modifier: Modifier = Modifier) {
     val animatedValue by animateIntAsState(
         targetValue = messageCount,
         animationSpec = tween(500, easing = FastOutSlowInEasing),
@@ -147,7 +147,7 @@ fun TotalMessage(messageCount: Int, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun WhisperItem(
+private fun WhisperItem(
     chatroom: Chatroom,
     onItemClick: (id: String, name: String, avatar: String) -> Unit,
     modifier: Modifier = Modifier
