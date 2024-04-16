@@ -1,6 +1,7 @@
 package com.rocky.whisper.ui.chat
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,6 +16,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -37,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -48,8 +51,10 @@ import com.rocky.whisper.R
 import com.rocky.whisper.data.Message
 import com.rocky.whisper.util.component.Avatar
 import com.rocky.whisper.util.component.DefaultTopAppBar
+import com.rocky.whisper.util.convertLocalDateToDateString
+import com.rocky.whisper.util.convertTimestampToTime
 import com.rocky.whisper.util.noRippleClickable
-
+import java.time.LocalDate
 
 @Composable
 fun ChatScreen(
@@ -82,10 +87,11 @@ fun ChatScreen(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatContent(
     oppositeUserAvatar: String,
-    messageList: List<Message>,
+    messageList: Map<LocalDate, List<Message>>,
     topAppBarTitle: String,
     onBackPressed: () -> Unit,
     onSendMessage: (String) -> Unit,
@@ -108,10 +114,14 @@ private fun ChatContent(
         ) {
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
-                reverseLayout = true
             ) {
-                items(messageList) {
-                    MessageItem(it, oppositeUserAvatar)
+                messageList.forEach { (localDate, messages) ->
+                    stickyHeader {
+                        MessageHeader(localDate)
+                    }
+                    items(messages) {
+                        MessageItem(it, oppositeUserAvatar)
+                    }
                 }
             }
         }
@@ -165,40 +175,94 @@ private fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modi
 }
 
 @Composable
-private fun MessageItem(message: Message, oppositeUserAvatar: String, modifier: Modifier = Modifier) {
-    if (message.isCurrentUser()) {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(end = 16.dp),
-            horizontalArrangement = Arrangement.End
-        ) {
-            Box(modifier = Modifier.fillMaxWidth(0.2f))
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 28.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .padding(16.dp)
-            ) {
-                Text(text = message.message)
-            }
+private fun MessageHeader(date: LocalDate) {
+    Box(
+        modifier = Modifier.fillMaxWidth(),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.tertiaryContainer)
+                .padding(vertical = 4.dp, horizontal = 16.dp),
+            text = convertLocalDateToDateString(date),
+            color = MaterialTheme.colorScheme.onTertiaryContainer
+        )
+    }
+}
+
+@Composable
+private fun MessageItem(
+    message: Message,
+    oppositeUserAvatar: String,
+    modifier: Modifier = Modifier
+) {
+    when {
+        message.isCurrentUser() -> {
+            CurrentUserMessageItem(modifier = modifier, message = message)
         }
-    } else {
-        Row(
-            modifier = modifier
-                .fillMaxWidth(0.8f)
-                .padding(start = 12.dp),
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Avatar(uri = oppositeUserAvatar, size = 32.dp)
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(
-                text = message.message,
-                Modifier
-                    .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomEnd = 28.dp))
-                    .background(MaterialTheme.colorScheme.secondaryContainer)
-                    .padding(16.dp)
+
+        else -> {
+            OtherUserMessageItem(
+                modifier = modifier,
+                message = message,
+                oppositeUserAvatar = oppositeUserAvatar
             )
+
         }
+    }
+}
+
+@Composable
+private fun CurrentUserMessageItem(modifier: Modifier = Modifier, message: Message) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(end = 16.dp),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Text(
+            modifier = Modifier.padding(end = 8.dp),
+            text = convertTimestampToTime(message.lastUpdate)
+        )
+        Box(
+            modifier = Modifier
+                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 28.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .padding(16.dp)
+                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.5f)
+        ) {
+            Text(text = message.message)
+        }
+    }
+}
+
+@Composable
+private fun OtherUserMessageItem(
+    modifier: Modifier = Modifier,
+    message: Message,
+    oppositeUserAvatar: String
+) {
+    Row(
+        modifier = modifier
+            .padding(start = 12.dp),
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Avatar(uri = oppositeUserAvatar, size = 32.dp)
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = message.message,
+            Modifier
+                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomEnd = 28.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .padding(16.dp)
+                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.5f)
+        )
+        Text(
+            modifier = Modifier.padding(start = 8.dp),
+            text = convertTimestampToTime(message.lastUpdate),
+            maxLines = 1
+        )
     }
 }

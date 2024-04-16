@@ -15,10 +15,13 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 import javax.inject.Inject
 
 data class ChatUiState(
-    val messageList: List<Message> = listOf()
+    val messageList: Map<LocalDate, List<Message>> = mapOf()
 )
 
 @HiltViewModel
@@ -47,7 +50,13 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             messageRepository.observeMessage(roomId).collectLatest {
                 _uiState.update { currentState ->
-                    currentState.copy(messageList = it.sortedByDescending { it.lastUpdate })
+                    currentState.copy(messageList = it.sortedBy { it.lastUpdate }
+                        .groupBy { message ->
+                            Date(message.lastUpdate)
+                                .toInstant()
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDate()
+                        })
                 }
             }
         }
