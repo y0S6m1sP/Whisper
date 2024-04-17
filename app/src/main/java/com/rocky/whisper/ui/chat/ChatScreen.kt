@@ -272,6 +272,7 @@ private fun OtherUserMessageItem(
 ) {
     Row(
         modifier = modifier
+            .fillMaxWidth()
             .padding(start = 12.dp),
         verticalAlignment = Alignment.Bottom
     ) {
