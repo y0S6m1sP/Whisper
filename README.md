@@ -6,12 +6,13 @@ This app is a playground for practice mvi architecture with Jetpack Compose.
 
 **Whisper** use firebase to connect two users with uuid. User can send message to another user.
 
-## Screenshots
+### Real-time chat
+![chat](./demo/chat.gif)
 
-<img src="https://i.ibb.co/BVMfjLy/Screenshot-20240415-171742-Whisper.jpg" width="300">
-<img src="https://i.ibb.co/bzvYp1h/Screenshot-20240415-171746-Whisper.jpg" width="300">
-<img src="https://i.ibb.co/rFj5yHN/Screenshot-20240415-171750-Whisper.jpg" width="300">
-<img src="https://i.ibb.co/X5smc5t/Screenshot-20240415-172208-Whisper.jpg" width="300">
-<img src="https://i.ibb.co/52vGt7C/Screenshot-20240415-172247-Whisper.jpg" width="300">
+### Sticky Header
+![sticky_header](./demo/sticky_header.gif)
+
+### Crop image and Upload to Firebase
+![crop_upload](./demo/crop_upload.gif)
 
 ## Architecture (WIP)
