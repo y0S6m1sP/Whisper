@@ -29,6 +29,7 @@ fun LocalChatroom.toExternal() = Chatroom(
     users = users,
     userDetails = userDetails,
     lastMessage = lastMessage,
+    firstVisibleIndex = firstVisibleIndex,
     lastUpdate = lastUpdate,
 )
 

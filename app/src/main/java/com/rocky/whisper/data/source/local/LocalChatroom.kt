@@ -10,5 +10,6 @@ data class LocalChatroom(
     val users: List<String>,
     val userDetails: List<User>,
     val lastMessage: String = "",
+    val firstVisibleIndex: Int = 0,
     val lastUpdate: Long
 )

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.firestore.ListenerRegistration
+import com.rocky.whisper.WhisperDestinationsArgs.FIRST_VISIBLE_INDEX_ARG
 import com.rocky.whisper.WhisperDestinationsArgs.ROOM_ID_ARG
 import com.rocky.whisper.data.Message
 import com.rocky.whisper.data.repository.MessageRepository
@@ -32,6 +33,7 @@ class ChatViewModel @Inject constructor(
 ) : ViewModel() {
 
     val roomId: String = checkNotNull(savedStateHandle[ROOM_ID_ARG])
+    val firstVisibleIndex: String = checkNotNull(savedStateHandle[FIRST_VISIBLE_INDEX_ARG])
 
     private val _uiState = MutableStateFlow(ChatUiState())
     val uiState: StateFlow<ChatUiState> = _uiState
@@ -59,6 +61,12 @@ class ChatViewModel @Inject constructor(
                         })
                 }
             }
+        }
+    }
+
+    fun updateFirstVisibleIndex(index: Int) {
+        viewModelScope.launch(dispatcher) {
+            messageRepository.updateFirstVisibleIndex(roomId, index)
         }
     }
 }

@@ -44,7 +44,7 @@ import com.rocky.whisper.util.component.WhisperDialog
 
 @Composable
 fun HomeScreen(
-    onItemClick: (id: String, name: String, avatar: String) -> Unit,
+    onItemClick: (id: String, firstVisibleIndex: Int, name: String, avatar: String) -> Unit,
     viewModel: HomeViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -75,7 +75,7 @@ private fun HomeContent(
     user: User?,
     recentChatList: List<Chatroom>,
     messageCount: Int,
-    onItemClick: (id: String, name: String, avatar: String) -> Unit,
+    onItemClick: (id: String, firstVisibleIndex: Int, name: String, avatar: String) -> Unit,
     onWhisper: () -> Unit,
     onWhisperDialogDismiss: () -> Unit,
     onWhisperDialogSubmit: (id: String) -> Unit,
@@ -149,7 +149,7 @@ private fun TotalMessage(messageCount: Int, modifier: Modifier = Modifier) {
 @Composable
 private fun WhisperItem(
     chatroom: Chatroom,
-    onItemClick: (id: String, name: String, avatar: String) -> Unit,
+    onItemClick: (id: String, firstVisibleIndex: Int, name: String, avatar: String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val oppositeUser = chatroom.parseOppositeUser()
@@ -162,6 +162,7 @@ private fun WhisperItem(
             .clickable {
                 onItemClick(
                     chatroom.id!!,
+                    chatroom.firstVisibleIndex!!,
                     oppositeUserName,
                     oppositeUserAvatar
                 )

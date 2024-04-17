@@ -10,6 +10,7 @@ data class Chatroom(
     val users: List<String>? = null,
     val userDetails: List<User>? = null,
     val lastMessage: String? = null,
+    val firstVisibleIndex: Int? = null,
     val lastUpdate: Long? = null
 ) {
     fun parseOppositeUser(): User? {

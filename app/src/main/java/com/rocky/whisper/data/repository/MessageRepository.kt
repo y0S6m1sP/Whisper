@@ -20,4 +20,6 @@ interface MessageRepository {
     suspend fun observeMessage(roomId: String): Flow<List<Message>>
 
     suspend fun observeMessageCount(): Flow<Int>
+
+    suspend fun updateFirstVisibleIndex(roomId: String, index: Int)
 }

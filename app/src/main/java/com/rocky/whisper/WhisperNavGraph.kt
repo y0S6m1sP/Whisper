@@ -55,8 +55,8 @@ fun WhisperNavGraph(
                 selectedTab = BottomAppBarTab.Home
             ) {
                 HomeScreen(
-                    onItemClick = { id, name, avatar ->
-                        navActions.navigateToChat(id, name, avatar)
+                    onItemClick = { id, firstVisibleIndex, name, avatar ->
+                        navActions.navigateToChat(id, firstVisibleIndex, name, avatar)
                     },
                     viewModel = viewModel
                 )

@@ -1,3 +1,5 @@
+@file:OptIn(FlowPreview::class)
+
 package com.rocky.whisper.ui.chat
 
 import androidx.compose.foundation.BorderStroke
@@ -19,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -35,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +58,9 @@ import com.rocky.whisper.util.component.DefaultTopAppBar
 import com.rocky.whisper.util.convertLocalDateToDateString
 import com.rocky.whisper.util.convertTimestampToTime
 import com.rocky.whisper.util.noRippleClickable
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.debounce
 import java.time.LocalDate
 
 @Composable
@@ -80,24 +87,42 @@ fun ChatScreen(
     ChatContent(
         oppositeUserAvatar = oppositeUserAvatar,
         messageList = uiState.messageList,
+        firstVisibleIndex = viewModel.firstVisibleIndex,
         topAppBarTitle = topAppBarTitle,
         onBackPressed = { onBackPressed() },
         onSendMessage = { viewModel.sendMessage(it) },
+        onFirstVisibleIndexChange = { viewModel.updateFirstVisibleIndex(it) },
         modifier = modifier
     )
 }
+
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun ChatContent(
     oppositeUserAvatar: String,
     messageList: Map<LocalDate, List<Message>>,
+    firstVisibleIndex: String,
     topAppBarTitle: String,
     onBackPressed: () -> Unit,
     onSendMessage: (String) -> Unit,
+    onFirstVisibleIndexChange: (Int) -> Unit,
     modifier: Modifier,
 ) {
     val focusManager = LocalFocusManager.current
+    val listState = rememberLazyListState(
+        initialFirstVisibleItemIndex = firstVisibleIndex.toInt()
+    )
+
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex
+        }
+            .debounce(500)
+            .collectLatest { index ->
+                onFirstVisibleIndexChange(index)
+            }
+    }
 
     Column(
         modifier
@@ -113,6 +138,7 @@ private fun ChatContent(
             verticalArrangement = Arrangement.Bottom
         ) {
             LazyColumn(
+                state = listState,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 messageList.forEach { (localDate, messages) ->

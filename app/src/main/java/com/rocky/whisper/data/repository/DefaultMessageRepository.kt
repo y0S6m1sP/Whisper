@@ -98,7 +98,14 @@ class DefaultMessageRepository @Inject constructor(
                 val chatroom = dc.document.toObject(Chatroom::class.java).toLocal()
                 when (dc.type) {
                     DocumentChange.Type.ADDED -> {
-                        chatroomDao.insertAll(chatroom)
+                        val room = chatroomDao.getChatroom(chatroom.id)
+                        if (room == null) chatroomDao.insertAll(chatroom)
+                        else chatroomDao.updateWithoutFirstVisibleIndex(
+                            chatroom.id,
+                            chatroom.userDetails,
+                            chatroom.lastMessage,
+                            chatroom.lastUpdate
+                        )
                     }
 
                     DocumentChange.Type.MODIFIED -> {
@@ -197,4 +204,7 @@ class DefaultMessageRepository @Inject constructor(
         return messageDao.observeMessageCount()
     }
 
+    override suspend fun updateFirstVisibleIndex(roomId: String, index: Int) {
+        chatroomDao.updateFirstVisibleIndex(roomId, index)
+    }
 }
