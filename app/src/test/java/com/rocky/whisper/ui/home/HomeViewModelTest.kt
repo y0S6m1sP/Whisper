@@ -1,9 +1,11 @@
 package com.rocky.whisper.ui.home
 
 import com.rocky.shared_test.MainCoroutineRule
+import com.rocky.shared_test.data.repository.FakeChatroomRepository
 import com.rocky.shared_test.data.repository.FakeMessageRepository
 import com.rocky.shared_test.data.repository.FakeUserRepository
-import com.rocky.whisper.data.User
+import com.rocky.whisper.data.user.User
+import com.rocky.whisper.feature.home.HomeViewModel
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertNull
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -13,12 +15,14 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+
 @ExperimentalCoroutinesApi
 class HomeViewModelTest {
 
     private lateinit var homeViewModel: HomeViewModel
 
     private lateinit var messageRepository: FakeMessageRepository
+    private lateinit var chatroomRepository: FakeChatroomRepository
     private lateinit var userRepository: FakeUserRepository
 
     private var testDispatcher = UnconfinedTestDispatcher()
@@ -29,10 +33,12 @@ class HomeViewModelTest {
 
     @Before
     fun setup() {
+        chatroomRepository = FakeChatroomRepository()
         messageRepository = FakeMessageRepository()
         userRepository = FakeUserRepository()
 
         homeViewModel = HomeViewModel(
+            chatroomRepository = chatroomRepository,
             messageRepository = messageRepository,
             userRepository = userRepository,
             dispatcher = testDispatcher
@@ -63,13 +69,13 @@ class HomeViewModelTest {
     @Test
     fun createRoom_createNewRoom() {
         homeViewModel.createRoom("fakeId")
-        assertEquals(1, messageRepository.recentChatList.size)
+        assertEquals(1, chatroomRepository.recentChatList.size)
     }
 
     @Test
     fun observeChatRoom_updateUiState() = runTest {
         val chatroomId = "fakeId"
-        messageRepository.createRoom(chatroomId)
+        chatroomRepository.createRoom(chatroomId)
         homeViewModel.observeChatroom()
 
         advanceUntilIdle()

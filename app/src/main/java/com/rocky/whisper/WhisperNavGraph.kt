@@ -19,16 +19,16 @@ import com.rocky.whisper.WhisperDestinations.UPLOAD_IMAGE_ROUTE
 import com.rocky.whisper.WhisperDestinationsArgs.IMAGE_URI_ARG
 import com.rocky.whisper.WhisperDestinationsArgs.OPPOSITE_USER_AVATAR_ARG
 import com.rocky.whisper.WhisperDestinationsArgs.OPPOSITE_USER_NAME_ARG
-import com.rocky.whisper.ui.chat.ChatScreen
-import com.rocky.whisper.ui.chat.ChatViewModel
-import com.rocky.whisper.ui.home.HomeScreen
-import com.rocky.whisper.ui.home.HomeViewModel
-import com.rocky.whisper.ui.setting.SettingScreen
-import com.rocky.whisper.ui.setting.SettingViewModel
-import com.rocky.whisper.ui.uploadavatar.UploadAvatarScreen
-import com.rocky.whisper.ui.uploadavatar.UploadAvatarViewModel
-import com.rocky.whisper.util.component.BottomAppBarTab
-import com.rocky.whisper.util.component.WhisperBottomAppBar
+import com.rocky.whisper.feature.chat.ChatScreen
+import com.rocky.whisper.feature.chat.ChatViewModel
+import com.rocky.whisper.feature.home.HomeScreen
+import com.rocky.whisper.feature.home.HomeViewModel
+import com.rocky.whisper.feature.setting.SettingScreen
+import com.rocky.whisper.feature.setting.SettingViewModel
+import com.rocky.whisper.feature.uploadavatar.UploadAvatarScreen
+import com.rocky.whisper.feature.uploadavatar.UploadAvatarViewModel
+import com.rocky.whisper.core.component.BottomAppBarTab
+import com.rocky.whisper.core.component.WhisperBottomAppBar
 
 @Composable
 fun WhisperNavGraph(

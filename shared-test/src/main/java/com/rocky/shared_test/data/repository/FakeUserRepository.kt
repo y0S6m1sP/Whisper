@@ -1,8 +1,8 @@
 package com.rocky.shared_test.data.repository
 
-import com.rocky.whisper.data.User
-import com.rocky.whisper.data.repository.UserRepository
-import com.rocky.whisper.util.Async
+import com.rocky.whisper.data.user.User
+import com.rocky.whisper.data.user.repository.UserRepository
+import com.rocky.whisper.core.util.Async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 

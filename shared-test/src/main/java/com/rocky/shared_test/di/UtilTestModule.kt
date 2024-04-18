@@ -2,7 +2,7 @@ package com.rocky.shared_test.di
 
 import com.rocky.shared_test.util.imagecropper.FakeImageCropper
 import com.rocky.whisper.di.UtilModule
-import com.rocky.whisper.util.imagecropper.ImageCropper
+import com.rocky.whisper.feature.uploadavatar.util.ImageCropper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.components.SingletonComponent

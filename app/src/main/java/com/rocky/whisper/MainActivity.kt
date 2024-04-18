@@ -10,8 +10,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.rocky.whisper.ui.MainViewModel
-import com.rocky.whisper.ui.theme.WhisperTheme
+import com.rocky.whisper.core.theme.WhisperTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

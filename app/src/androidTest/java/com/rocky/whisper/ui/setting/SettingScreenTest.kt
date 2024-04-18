@@ -8,8 +8,10 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.rocky.whisper.HiltTestActivity
 import com.rocky.whisper.R
-import com.rocky.whisper.data.repository.UserRepository
-import com.rocky.whisper.ui.theme.WhisperTheme
+import com.rocky.whisper.data.user.repository.UserRepository
+import com.rocky.whisper.feature.setting.SettingScreen
+import com.rocky.whisper.feature.setting.SettingViewModel
+import com.rocky.whisper.core.theme.WhisperTheme
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi

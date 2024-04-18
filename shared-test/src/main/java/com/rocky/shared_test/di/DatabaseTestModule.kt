@@ -2,7 +2,7 @@ package com.rocky.shared_test.di
 
 import android.content.Context
 import androidx.room.Room
-import com.rocky.whisper.data.source.local.WhisperDatabase
+import com.rocky.whisper.data.WhisperDatabase
 import com.rocky.whisper.di.DatabaseModule
 import dagger.Module
 import dagger.Provides

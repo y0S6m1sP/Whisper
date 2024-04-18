@@ -2,7 +2,8 @@ package com.rocky.whisper.ui.setting
 
 import com.rocky.shared_test.MainCoroutineRule
 import com.rocky.shared_test.data.repository.FakeUserRepository
-import com.rocky.whisper.data.User
+import com.rocky.whisper.data.user.User
+import com.rocky.whisper.feature.setting.SettingViewModel
 import junit.framework.TestCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher

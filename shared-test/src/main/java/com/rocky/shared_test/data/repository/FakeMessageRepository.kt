@@ -1,8 +1,7 @@
 package com.rocky.shared_test.data.repository
 
-import com.rocky.whisper.data.Chatroom
-import com.rocky.whisper.data.Message
-import com.rocky.whisper.data.repository.MessageRepository
+import com.rocky.whisper.data.chat.Message
+import com.rocky.whisper.data.chat.repository.MessageRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -10,8 +9,7 @@ class FakeMessageRepository: MessageRepository {
 
     var messageList: MutableList<Message> = mutableListOf()
         private set
-    var recentChatList: MutableList<Chatroom> = mutableListOf()
-        private set
+
     var messageCount = 0
         private set
 
@@ -22,20 +20,6 @@ class FakeMessageRepository: MessageRepository {
 
     fun setMessageCount(count: Int){
         messageCount = count
-    }
-    override fun createRoom(id: String) {
-        val chatroom = Chatroom(id)
-        recentChatList.add(chatroom)
-    }
-
-    override fun fetchChatroom() {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun observeChatroom(): Flow<List<Chatroom>> {
-        return flow {
-            emit(recentChatList)
-        }
     }
 
     override suspend fun sendMessage(roomId: String, message: String) {

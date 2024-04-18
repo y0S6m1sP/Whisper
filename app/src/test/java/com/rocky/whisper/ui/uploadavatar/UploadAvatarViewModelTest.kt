@@ -4,6 +4,7 @@ import androidx.compose.ui.geometry.Rect
 import com.rocky.shared_test.MainCoroutineRule
 import com.rocky.shared_test.data.repository.FakeUserRepository
 import com.rocky.shared_test.util.imagecropper.FakeImageCropper
+import com.rocky.whisper.feature.uploadavatar.UploadAvatarViewModel
 import io.mockk.mockk
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue

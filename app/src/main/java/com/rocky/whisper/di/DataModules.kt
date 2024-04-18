@@ -9,16 +9,18 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
-import com.rocky.whisper.data.repository.DefaultMessageRepository
-import com.rocky.whisper.data.repository.DefaultUserRepository
-import com.rocky.whisper.data.repository.MessageRepository
-import com.rocky.whisper.data.repository.UserRepository
-import com.rocky.whisper.data.source.local.ChatroomDao
-import com.rocky.whisper.data.source.local.MessageDao
-import com.rocky.whisper.data.source.local.UserDao
-import com.rocky.whisper.data.source.local.WhisperDatabase
-import com.rocky.whisper.util.imagecropper.DefaultImageCropper
-import com.rocky.whisper.util.imagecropper.ImageCropper
+import com.rocky.whisper.data.WhisperDatabase
+import com.rocky.whisper.data.chat.local.MessageDao
+import com.rocky.whisper.data.chat.repository.DefaultMessageRepository
+import com.rocky.whisper.data.chat.repository.MessageRepository
+import com.rocky.whisper.data.home.local.ChatroomDao
+import com.rocky.whisper.data.home.repository.ChatroomRepository
+import com.rocky.whisper.data.home.repository.DefaultChatroomRepository
+import com.rocky.whisper.data.user.local.UserDao
+import com.rocky.whisper.data.user.repository.DefaultUserRepository
+import com.rocky.whisper.data.user.repository.UserRepository
+import com.rocky.whisper.feature.uploadavatar.util.DefaultImageCropper
+import com.rocky.whisper.feature.uploadavatar.util.ImageCropper
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -34,6 +36,10 @@ abstract class RepositoryModule {
     @Singleton
     @Binds
     abstract fun bindMessageRepository(repository: DefaultMessageRepository): MessageRepository
+
+    @Singleton
+    @Binds
+    abstract fun bindChatroomRepository(repository: DefaultChatroomRepository): ChatroomRepository
 
     @Singleton
     @Binds

@@ -1,7 +1,7 @@
 package com.rocky.shared_test.data.source.local
 
-import com.rocky.whisper.data.source.local.LocalUser
-import com.rocky.whisper.data.source.local.UserDao
+import com.rocky.whisper.data.user.local.LocalUser
+import com.rocky.whisper.data.user.local.UserDao
 import kotlinx.coroutines.flow.Flow
 
 class FakeUserDao : UserDao {
