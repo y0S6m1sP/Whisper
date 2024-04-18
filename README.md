@@ -1,6 +1,6 @@
 # Whisper
 
-This app is a playground for practice mvi architecture with Jetpack Compose.
+Whisper is building with MVI architecture with Jetpack Compose.
 
 ## Feature
 
@@ -15,4 +15,5 @@ This app is a playground for practice mvi architecture with Jetpack Compose.
 ### Crop image and Upload to Firebase
 ![crop_upload](./demo/crop_upload.gif)
 
-## Architecture (WIP)
+## Structure
+![structure-w50](./demo/structure.png)
