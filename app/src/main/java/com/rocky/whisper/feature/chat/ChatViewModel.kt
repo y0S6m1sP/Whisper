@@ -12,14 +12,13 @@ import com.rocky.whisper.data.home.repository.ChatroomRepository
 import com.rocky.whisper.di.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.ZoneId
-import java.util.Date
 import javax.inject.Inject
 
 data class ChatUiState(
@@ -54,13 +53,8 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             messageRepository.observeMessage(roomId).collectLatest {
                 _uiState.update { currentState ->
-                    currentState.copy(messageList = it.sortedBy { it.lastUpdate }
-                        .groupBy { message ->
-                            Date(message.lastUpdate)
-                                .toInstant()
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()
-                        })
+                    delay(100)
+                    currentState.copy(messageList = it)
                 }
             }
         }

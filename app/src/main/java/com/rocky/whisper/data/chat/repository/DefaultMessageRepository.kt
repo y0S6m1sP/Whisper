@@ -13,7 +13,6 @@ import com.rocky.whisper.data.chat.Message
 import com.rocky.whisper.data.chat.local.MessageDao
 import com.rocky.whisper.data.chat.toExternal
 import com.rocky.whisper.data.chat.toLocal
-import com.rocky.whisper.data.home.local.ChatroomDao
 import com.rocky.whisper.di.ApplicationScope
 import com.rocky.whisper.di.IoDispatcher
 import kotlinx.coroutines.CoroutineDispatcher
@@ -23,12 +22,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
+import java.time.LocalDate
+import java.time.ZoneId
+import java.util.Date
 import javax.inject.Inject
 
 class DefaultMessageRepository @Inject constructor(
     private val db: FirebaseFirestore,
     private val auth: FirebaseAuth,
-    private val chatroomDao: ChatroomDao,
     private val messageDao: MessageDao,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
     @ApplicationScope private val scope: CoroutineScope
@@ -104,9 +105,17 @@ class DefaultMessageRepository @Inject constructor(
         }
     }
 
-    override suspend fun observeMessage(roomId: String): Flow<List<Message>> {
-        return messageDao.observeAll(roomId)
-            .map { it.map { localMessage -> localMessage.toExternal() } }
+    override suspend fun observeMessage(roomId: String): Flow<Map<LocalDate, List<Message>>> {
+        return messageDao.observeAll(roomId).map {
+            it.map { localMessage -> localMessage.toExternal() }
+                .sortedBy { message -> message.lastUpdate }
+                .groupBy { message ->
+                    Date(message.lastUpdate)
+                        .toInstant()
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                }
+        }
     }
 
     override suspend fun observeMessageCount(): Flow<Int> {
