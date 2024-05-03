@@ -2,6 +2,10 @@
 
 package com.rocky.whisper.feature.chat
 
+import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -44,6 +48,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -51,13 +56,15 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.AsyncImage
 import com.rocky.whisper.R
-import com.rocky.whisper.data.chat.Message
 import com.rocky.whisper.core.component.Avatar
 import com.rocky.whisper.core.component.DefaultTopAppBar
+import com.rocky.whisper.core.util.bitmapToByteArray
+import com.rocky.whisper.core.util.noRippleClickable
+import com.rocky.whisper.data.chat.Message
 import com.rocky.whisper.feature.chat.util.convertLocalDateToDateString
 import com.rocky.whisper.feature.chat.util.convertTimestampToTime
-import com.rocky.whisper.core.util.noRippleClickable
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
@@ -71,6 +78,7 @@ fun ChatScreen(
     viewModel: ChatViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     DisposableEffect(key1 = Unit) {
@@ -84,6 +92,21 @@ fun ChatScreen(
         viewModel.observeMessage()
     }
 
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+
+        val bitmap =
+            uri?.let { BitmapFactory.decodeStream(context.contentResolver.openInputStream(it)) }
+        bitmap?.let { viewModel.sendImage(bitmapToByteArray(it)) }
+    }
+
+    fun launchPhotoPicker() {
+        singlePhotoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
     ChatContent(
         oppositeUserAvatar = oppositeUserAvatar,
         messageList = uiState.messageList,
@@ -91,6 +114,7 @@ fun ChatScreen(
         topAppBarTitle = topAppBarTitle,
         onBackPressed = { onBackPressed() },
         onSendMessage = { viewModel.sendMessage(it) },
+        onSendImage = { launchPhotoPicker() },
         onFirstVisibleIndexChange = { viewModel.updateFirstVisibleIndex(it) },
         modifier = modifier
     )
@@ -106,6 +130,7 @@ private fun ChatContent(
     topAppBarTitle: String,
     onBackPressed: () -> Unit,
     onSendMessage: (String) -> Unit,
+    onSendImage: () -> Unit,
     onFirstVisibleIndexChange: (Int) -> Unit,
     modifier: Modifier,
 ) {
@@ -151,12 +176,16 @@ private fun ChatContent(
                 }
             }
         }
-        TypingBar(onSendMessage = onSendMessage)
+        TypingBar(onSendMessage = onSendMessage, onSendImage = onSendImage)
     }
 }
 
 @Composable
-private fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun TypingBar(
+    onSendMessage: (String) -> Unit,
+    onSendImage: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var text by remember { mutableStateOf(TextFieldValue()) }
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -165,8 +194,14 @@ private fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modi
             .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.Bottom
     ) {
-
-
+        IconButton(onClick = {
+            onSendImage()
+        }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_image),
+                contentDescription = "select image"
+            )
+        }
         BasicTextField(
             value = text,
             onValueChange = { targetValue ->
@@ -234,7 +269,6 @@ private fun MessageItem(
                 message = message,
                 oppositeUserAvatar = oppositeUserAvatar
             )
-
         }
     }
 }
@@ -259,7 +293,17 @@ private fun CurrentUserMessageItem(modifier: Modifier = Modifier, message: Messa
                 .padding(16.dp)
                 .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.5f)
         ) {
-            Text(text = message.message)
+            if (message.isImageUrl()) {
+                AsyncImage(
+                    modifier = modifier.clip(
+                        RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomStart = 20.dp)
+                    ),
+                    model = message.message,
+                    contentDescription = "image"
+                )
+            } else {
+                Text(text = message.message)
+            }
         }
     }
 }
@@ -278,14 +322,25 @@ private fun OtherUserMessageItem(
     ) {
         Avatar(uri = oppositeUserAvatar, size = 32.dp)
         Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = message.message,
+        Box(
             Modifier
                 .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomEnd = 28.dp))
                 .background(MaterialTheme.colorScheme.secondaryContainer)
                 .padding(16.dp)
                 .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.5f)
-        )
+        ) {
+            if (message.isImageUrl()) {
+                AsyncImage(
+                    modifier = modifier.clip(
+                        RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp, bottomEnd = 20.dp)
+                    ),
+                    model = message.message,
+                    contentDescription = "image"
+                )
+            } else {
+                Text(text = message.message)
+            }
+        }
         Text(
             modifier = Modifier.padding(start = 8.dp),
             text = convertTimestampToTime(message.lastUpdate),

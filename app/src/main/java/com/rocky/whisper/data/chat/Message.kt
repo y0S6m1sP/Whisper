@@ -14,4 +14,8 @@ data class Message(
     fun isCurrentUser(): Boolean {
         return senderId == Firebase.auth.uid
     }
+
+    fun isImageUrl(): Boolean {
+        return message.contains("firebasestorage")
+    }
 }

@@ -45,6 +45,14 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun sendImage(image: ByteArray) {
+        viewModelScope.launch(dispatcher) {
+            messageRepository.sendImage(roomId, image).collectLatest {
+
+            }
+        }
+    }
+
     fun fetchMessage(): ListenerRegistration {
         return messageRepository.fetchMessage(roomId)
     }
