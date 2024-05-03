@@ -1,5 +1,6 @@
 package com.rocky.whisper.data.chat.repository
 
+import android.net.Uri
 import com.google.firebase.firestore.ListenerRegistration
 import com.rocky.whisper.core.util.Async
 import com.rocky.whisper.data.chat.Message
@@ -10,7 +11,7 @@ interface MessageRepository {
 
     suspend fun sendMessage(roomId: String, message: String)
 
-    suspend fun sendImage(roomId: String, image: ByteArray): Flow<Async<Unit>>
+    suspend fun sendImage(roomId: String, uri: Uri, image: ByteArray): Flow<Async<Unit>>
 
     fun fetchMessage(roomId: String): ListenerRegistration
 

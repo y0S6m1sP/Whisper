@@ -1,5 +1,6 @@
 package com.rocky.whisper.feature.chat
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -45,9 +46,9 @@ class ChatViewModel @Inject constructor(
         }
     }
 
-    fun sendImage(image: ByteArray) {
+    fun sendImage(uri: Uri, image: ByteArray) {
         viewModelScope.launch(dispatcher) {
-            messageRepository.sendImage(roomId, image).collectLatest {
+            messageRepository.sendImage(roomId, uri, image).collectLatest {
 
             }
         }

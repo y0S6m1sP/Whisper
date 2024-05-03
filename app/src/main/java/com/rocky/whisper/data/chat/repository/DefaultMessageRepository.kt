@@ -1,7 +1,9 @@
 package com.rocky.whisper.data.chat.repository
 
+import android.net.Uri
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
@@ -9,6 +11,7 @@ import com.google.firebase.storage.FirebaseStorage
 import com.rocky.whisper.core.util.Async
 import com.rocky.whisper.data.Constants.COLLECTION_MESSAGES
 import com.rocky.whisper.data.Constants.COLLECTION_ROOMS
+import com.rocky.whisper.data.Constants.FIELD_IMAGE
 import com.rocky.whisper.data.Constants.FIELD_LAST_MESSAGE
 import com.rocky.whisper.data.Constants.FIELD_LAST_UPDATE
 import com.rocky.whisper.data.chat.Message
@@ -48,7 +51,14 @@ class DefaultMessageRepository @Inject constructor(
                 val doc = db.collection(COLLECTION_ROOMS)
                     .document(roomId)
                     .collection(COLLECTION_MESSAGES).document()
-                doc.set(Message(doc.id, it, message, System.currentTimeMillis())).await()
+                doc.set(
+                    Message(
+                        id = doc.id,
+                        senderId = it,
+                        message = message,
+                        lastUpdate = System.currentTimeMillis()
+                    )
+                ).await()
                 updateLastMessage(roomId, message)
             }
         } catch (e: Exception) {
@@ -56,10 +66,28 @@ class DefaultMessageRepository @Inject constructor(
         }
     }
 
-    override suspend fun sendImage(roomId: String, image: ByteArray): Flow<Async<Unit>> {
+    private fun createTempImage(roomId: String): DocumentReference {
+        return db.collection(COLLECTION_ROOMS)
+            .document(roomId)
+            .collection(COLLECTION_MESSAGES)
+            .document()
+    }
+
+    override suspend fun sendImage(roomId: String, uri: Uri, image: ByteArray): Flow<Async<Unit>> {
         return callbackFlow {
-            trySend(Async.Loading)
-            auth.currentUser?.uid?.let {
+            auth.currentUser?.uid?.let { uid ->
+                val doc = createTempImage(roomId)
+                trySend(Async.Loading)
+                scope.launch {
+                    doc.set(
+                        Message(
+                            id = doc.id,
+                            senderId = uid,
+                            image = "",
+                            lastUpdate = System.currentTimeMillis()
+                        )
+                    ).await()
+                }
                 val avatarRef = storage.reference.child("$roomId/${UUID.randomUUID()}.jpg")
                 val uploadTask = avatarRef.putBytes(image)
                 uploadTask.continueWithTask { task ->
@@ -72,7 +100,10 @@ class DefaultMessageRepository @Inject constructor(
                         trySend(Async.Success(Unit))
                         val downloadUrl = task.result
                         scope.launch(dispatcher) {
-                            sendMessage(roomId, downloadUrl.toString())
+                            val updates = hashMapOf(
+                                FIELD_IMAGE to downloadUrl.toString(),
+                            )
+                            doc.update(updates as Map<String, Any>).await()
                         }
                     } else {
                         Timber.e(task.exception)
@@ -113,7 +144,7 @@ class DefaultMessageRepository @Inject constructor(
                     }
 
                     DocumentChange.Type.MODIFIED -> {
-                        messageDao.update(message.id, message.message)
+                        messageDao.update(message.id, message.message, message.image)
                     }
 
                     DocumentChange.Type.REMOVED -> {

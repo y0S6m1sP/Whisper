@@ -9,5 +9,6 @@ data class LocalMessage(
     val roomId: String,
     val senderId: String,
     val message: String,
+    val image: String,
     val lastUpdate: Long,
 )

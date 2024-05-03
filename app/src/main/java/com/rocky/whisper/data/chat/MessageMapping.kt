@@ -7,6 +7,7 @@ fun Message.toLocal(roomId: String) = LocalMessage(
     roomId = roomId,
     senderId = senderId,
     message = message,
+    image = image,
     lastUpdate = lastUpdate,
 )
 
@@ -14,5 +15,6 @@ fun LocalMessage.toExternal() = Message(
     id = id,
     senderId = senderId,
     message = message,
+    image = image,
     lastUpdate = lastUpdate,
 )
