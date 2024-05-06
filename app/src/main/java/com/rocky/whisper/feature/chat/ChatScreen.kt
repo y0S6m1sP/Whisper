@@ -53,6 +53,7 @@ import com.rocky.whisper.core.util.bitmapToByteArray
 import com.rocky.whisper.core.util.noRippleClickable
 import com.rocky.whisper.data.chat.Message
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import java.time.LocalDate

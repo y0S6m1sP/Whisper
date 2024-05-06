@@ -13,7 +13,6 @@ import com.rocky.whisper.data.home.repository.ChatroomRepository
 import com.rocky.whisper.di.IoDispatcher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -62,7 +61,6 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             messageRepository.observeMessage(roomId).collectLatest {
                 _uiState.update { currentState ->
-                    delay(100)
                     currentState.copy(messageList = it)
                 }
             }

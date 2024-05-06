@@ -9,7 +9,7 @@ class FakeMessageDao: MessageDao {
         TODO("Not yet implemented")
     }
 
-    override suspend fun update(id: String, message: String) {
+    override suspend fun update(id: String, message: String, image: String) {
         TODO("Not yet implemented")
     }
 

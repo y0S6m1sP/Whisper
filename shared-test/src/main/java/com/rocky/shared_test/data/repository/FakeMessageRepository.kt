@@ -41,14 +41,14 @@ class FakeMessageRepository : MessageRepository {
 
     override suspend fun observeMessage(roomId: String): Flow<Map<LocalDate, List<Message>>> {
         return flow {
-            emit(messageList.sortedBy { message -> message.lastUpdate }
+            val map = messageList.sortedBy { message -> message.lastUpdate }
                 .groupBy { message ->
                     Date(message.lastUpdate)
                         .toInstant()
                         .atZone(ZoneId.systemDefault())
                         .toLocalDate()
                 }
-            )
+            emit(map)
         }
     }
 
