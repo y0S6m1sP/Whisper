@@ -13,8 +13,8 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAll(vararg message: LocalMessage)
 
-    @Query("UPDATE message SET message = :message WHERE id = :id")
-    suspend fun update(id: String, message: String)
+    @Query("UPDATE message SET message = :message, image = :image WHERE id = :id")
+    suspend fun update(id: String, message: String, image: String)
 
     @Delete
     fun delete(message: LocalMessage)

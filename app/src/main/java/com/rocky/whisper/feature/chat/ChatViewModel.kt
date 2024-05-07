@@ -1,5 +1,6 @@
 package com.rocky.whisper.feature.chat
 
+import android.net.Uri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,8 +19,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.ZoneId
-import java.util.Date
 import javax.inject.Inject
 
 data class ChatUiState(
@@ -46,6 +45,14 @@ class ChatViewModel @Inject constructor(
         }
     }
 
+    fun sendImage(uri: Uri, image: ByteArray) {
+        viewModelScope.launch(dispatcher) {
+            messageRepository.sendImage(roomId, uri, image).collectLatest {
+
+            }
+        }
+    }
+
     fun fetchMessage(): ListenerRegistration {
         return messageRepository.fetchMessage(roomId)
     }
@@ -54,13 +61,7 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch(dispatcher) {
             messageRepository.observeMessage(roomId).collectLatest {
                 _uiState.update { currentState ->
-                    currentState.copy(messageList = it.sortedBy { it.lastUpdate }
-                        .groupBy { message ->
-                            Date(message.lastUpdate)
-                                .toInstant()
-                                .atZone(ZoneId.systemDefault())
-                                .toLocalDate()
-                        })
+                    currentState.copy(messageList = it)
                 }
             }
         }

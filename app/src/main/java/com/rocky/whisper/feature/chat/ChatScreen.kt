@@ -2,23 +2,22 @@
 
 package com.rocky.whisper.feature.chat
 
+import android.graphics.BitmapFactory
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -29,8 +28,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -41,9 +38,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -52,13 +48,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rocky.whisper.R
-import com.rocky.whisper.data.chat.Message
-import com.rocky.whisper.core.component.Avatar
 import com.rocky.whisper.core.component.DefaultTopAppBar
-import com.rocky.whisper.feature.chat.util.convertLocalDateToDateString
-import com.rocky.whisper.feature.chat.util.convertTimestampToTime
+import com.rocky.whisper.core.util.bitmapToByteArray
 import com.rocky.whisper.core.util.noRippleClickable
+import com.rocky.whisper.data.chat.Message
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import java.time.LocalDate
@@ -71,6 +66,7 @@ fun ChatScreen(
     viewModel: ChatViewModel,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     DisposableEffect(key1 = Unit) {
@@ -84,6 +80,21 @@ fun ChatScreen(
         viewModel.observeMessage()
     }
 
+    val singlePhotoPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+
+        val bitmap =
+            uri?.let { BitmapFactory.decodeStream(context.contentResolver.openInputStream(it)) }
+        bitmap?.let { viewModel.sendImage(uri, bitmapToByteArray(it)) }
+    }
+
+    fun launchPhotoPicker() {
+        singlePhotoPickerLauncher.launch(
+            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+        )
+    }
+
     ChatContent(
         oppositeUserAvatar = oppositeUserAvatar,
         messageList = uiState.messageList,
@@ -91,13 +102,14 @@ fun ChatScreen(
         topAppBarTitle = topAppBarTitle,
         onBackPressed = { onBackPressed() },
         onSendMessage = { viewModel.sendMessage(it) },
+        onSendImage = { launchPhotoPicker() },
         onFirstVisibleIndexChange = { viewModel.updateFirstVisibleIndex(it) },
         modifier = modifier
     )
 }
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, FlowPreview::class)
 @Composable
 private fun ChatContent(
     oppositeUserAvatar: String,
@@ -106,6 +118,7 @@ private fun ChatContent(
     topAppBarTitle: String,
     onBackPressed: () -> Unit,
     onSendMessage: (String) -> Unit,
+    onSendImage: () -> Unit,
     onFirstVisibleIndexChange: (Int) -> Unit,
     modifier: Modifier,
 ) {
@@ -151,12 +164,16 @@ private fun ChatContent(
                 }
             }
         }
-        TypingBar(onSendMessage = onSendMessage)
+        TypingBar(onSendMessage = onSendMessage, onSendImage = onSendImage)
     }
 }
 
 @Composable
-private fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun TypingBar(
+    onSendMessage: (String) -> Unit,
+    onSendImage: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     var text by remember { mutableStateOf(TextFieldValue()) }
     val interactionSource = remember { MutableInteractionSource() }
     Row(
@@ -165,8 +182,14 @@ private fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modi
             .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
         verticalAlignment = Alignment.Bottom
     ) {
-
-
+        IconButton(onClick = {
+            onSendImage()
+        }) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_image),
+                contentDescription = "select image"
+            )
+        }
         BasicTextField(
             value = text,
             onValueChange = { targetValue ->
@@ -197,99 +220,5 @@ private fun TypingBar(onSendMessage: (String) -> Unit, modifier: Modifier = Modi
                 contentDescription = "send"
             )
         }
-    }
-}
-
-@Composable
-private fun MessageHeader(date: LocalDate) {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            modifier = Modifier
-                .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.tertiaryContainer)
-                .padding(vertical = 4.dp, horizontal = 16.dp),
-            text = convertLocalDateToDateString(date),
-            color = MaterialTheme.colorScheme.onTertiaryContainer
-        )
-    }
-}
-
-@Composable
-private fun MessageItem(
-    message: Message,
-    oppositeUserAvatar: String,
-    modifier: Modifier = Modifier
-) {
-    when {
-        message.isCurrentUser() -> {
-            CurrentUserMessageItem(modifier = modifier, message = message)
-        }
-
-        else -> {
-            OtherUserMessageItem(
-                modifier = modifier,
-                message = message,
-                oppositeUserAvatar = oppositeUserAvatar
-            )
-
-        }
-    }
-}
-
-@Composable
-private fun CurrentUserMessageItem(modifier: Modifier = Modifier, message: Message) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(end = 16.dp),
-        horizontalArrangement = Arrangement.End,
-        verticalAlignment = Alignment.Bottom
-    ) {
-        Text(
-            modifier = Modifier.padding(end = 8.dp),
-            text = convertTimestampToTime(message.lastUpdate)
-        )
-        Box(
-            modifier = Modifier
-                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomStart = 28.dp))
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-                .padding(16.dp)
-                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.5f)
-        ) {
-            Text(text = message.message)
-        }
-    }
-}
-
-@Composable
-private fun OtherUserMessageItem(
-    modifier: Modifier = Modifier,
-    message: Message,
-    oppositeUserAvatar: String
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 12.dp),
-        verticalAlignment = Alignment.Bottom
-    ) {
-        Avatar(uri = oppositeUserAvatar, size = 32.dp)
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = message.message,
-            Modifier
-                .clip(RoundedCornerShape(topStart = 28.dp, topEnd = 28.dp, bottomEnd = 28.dp))
-                .background(MaterialTheme.colorScheme.secondaryContainer)
-                .padding(16.dp)
-                .widthIn(max = LocalConfiguration.current.screenWidthDp.dp * 0.5f)
-        )
-        Text(
-            modifier = Modifier.padding(start = 8.dp),
-            text = convertTimestampToTime(message.lastUpdate),
-            maxLines = 1
-        )
     }
 }

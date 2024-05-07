@@ -9,9 +9,18 @@ data class Message(
     val id: String = "",
     val senderId: String = "",
     val message: String = "",
+    val image: String = "",
     val lastUpdate: Long = 0L,
-) {
-    fun isCurrentUser(): Boolean {
-        return senderId == Firebase.auth.uid
-    }
+)
+
+fun Message.isCurrentUser(): Boolean {
+    return senderId == Firebase.auth.uid
+}
+
+fun Message.isImage(): Boolean {
+    return image.isNotEmpty()
+}
+
+fun Message.isImageLoading(): Boolean {
+    return message.isEmpty() && image.isEmpty()
 }

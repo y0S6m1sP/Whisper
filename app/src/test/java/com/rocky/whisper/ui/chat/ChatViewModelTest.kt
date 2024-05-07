@@ -53,8 +53,8 @@ class ChatViewModelTest {
     @Test
     fun observeMessage_updateUiState() = runTest {
         val messages = listOf(
-            Message("1", "0", "Hello", 0),
-            Message("2", "0", "Hi", 0)
+            Message("1", "0", "Hello", "", 0),
+            Message("2", "0", "Hi", "", 0)
         )
         messageRepository.setMessages(messages)
         chatViewModel.observeMessage()
