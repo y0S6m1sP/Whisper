@@ -1,6 +1,6 @@
 # Whisper
 
-Whisper is building with MVI architecture with Jetpack Compose.
+Whisper is building with MVVM architecture with Jetpack Compose.
 
 ## Feature
 
