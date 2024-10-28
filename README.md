@@ -15,11 +15,6 @@ Whisper is building with MVVM architecture with Jetpack Compose.
 ### Crop image and Upload to Firebase
 ![crop_upload](./docs/crop_upload.gif)
 
-## Architecture
-![structure-w50](./docs/structure.png)
-
 ## Build
 
 Put your own `google-services.json` in `app` folder, then build the project.
-
-## Testing (WIP)
